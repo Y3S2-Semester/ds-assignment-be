@@ -14,10 +14,7 @@
     "format:code": "prettier --write \"src/**/*.js\"",
     "format:test": "prettier --write \"test/**/*.js\"",
     "format": "npm run format:code && npm run format:test",
-    "lint": "eslint \"src/**/*.js\"",
-    "test": "jest --runInBand --detectOpenHandles",
-    "test:unit": "jest --testPathPattern=/test/unit",
-    "test:integration": "jest --testPathPattern=/test/integration"
+    "lint": "eslint \"src/**/*.js\""
   },
   "keywords": [],
   "author": "",
