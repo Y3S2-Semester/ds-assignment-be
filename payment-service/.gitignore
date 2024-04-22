@@ -131,5 +131,4 @@ dist
 
 .idea
 
-# firebase config
-firebase-config.json
+pnpm-lock.yaml
