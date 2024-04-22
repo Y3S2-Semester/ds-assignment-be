@@ -169,3 +169,5 @@ dist
 .pnp.*
 
 pnpm-lock.yaml
+
+.env
