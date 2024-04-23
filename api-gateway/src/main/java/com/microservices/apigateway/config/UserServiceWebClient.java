@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
-public class UserServiceWebClientConfig {
+public class UserServiceWebClient {
     @Value("${address.base.user-service}")
     private String userServiceAddress;
 

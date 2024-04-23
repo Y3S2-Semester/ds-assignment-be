@@ -10,4 +10,6 @@ jwt:
 
 address:
   base:
-    user-service: http://localhost:8001
+    user-service: http://localhost:8000
+    course-service: http://localhost:8100
+    content-service: http://localhost:8200
