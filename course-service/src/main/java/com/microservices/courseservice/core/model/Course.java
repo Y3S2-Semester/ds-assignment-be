@@ -1,5 +1,6 @@
 package com.microservices.courseservice.core.model;
 
+import com.microservices.courseservice.core.Enum.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,20 @@ public class Course {
 
     @Id
     @Field(targetType = FieldType.OBJECT_ID)
-    private String id;
+    private String courseId;
+
+    private String courseName;
+
+    private String category;
+
+    private Double price;
+
+    private String courseDescription;
+
+    private String instructorId;
+
+    private Status status;
+
+    private Boolean isActive;
 
 }

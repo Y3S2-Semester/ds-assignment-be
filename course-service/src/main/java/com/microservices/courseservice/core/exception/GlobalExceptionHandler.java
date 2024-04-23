@@ -30,9 +30,9 @@ class GlobalExceptionHandler {
 //    Spring Security Exception
 //    @ExceptionHandler(AccessDeniedException.class)
 //    public ResponseEntity<Object> handleUserNotFoundException(Exception e){
-//        HttpStatus status = HttpStatus.FORBIDDEN;
+//        HttpStatus Status = HttpStatus.FORBIDDEN;
 //        return new ResponseEntity<>(new ResponseEntityDto(
-//                true, new ErrorResponse(status, e.getMessage())), status);
+//                true, new ErrorResponse(Status, e.getMessage())), Status);
 //    }
 
     @ExceptionHandler(ModuleException.class)
