@@ -1,57 +1,48 @@
 package com.microservices.apigateway.filter;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import com.microservices.apigateway.exception.UnAuthorizedException;
+import com.microservices.apigateway.util.JwtUtils;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.security.Key;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Logger;
 
 @Component
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GatewayFilter {
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
-
+    @NotNull
+    private final JwtUtils jwtUtil;
+    @NotNull
+    private final WebClient userServiceWebClient;
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-
-    private final String[] publicUrls = {
+    private final List<String> publicUrls = List.of(
             "/api/v1/auth/**",
             "/api/v1/health",
             "/api/v1/course"
-    };
+    );
+    Logger logger = Logger.getLogger("JwtAuthenticationFilter");
 
+    @SneakyThrows
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String requestUrl = exchange.getRequest().getPath().value();
-        if (isPublicUrl(requestUrl)) {
-            return chain.filter(exchange);
+        if (!isPublicUrl(requestUrl)) {
+            validateRequestWithToken(exchange);
         }
-
-        String token = extractTokenFromHeaders(exchange.getRequest().getHeaders());
-        if (token == null) {
-            return unauthorized(exchange);
-        }
-
-        try {
-            Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
-            Claims body = claimsJws.getBody();
-            return chain.filter(exchange);
-        } catch (Exception e) {
-            return unauthorized(exchange);
-        }
+        return chain.filter(exchange);
     }
 
     private boolean isPublicUrl(String url) {
@@ -63,21 +54,55 @@ public class JwtAuthenticationFilter implements GatewayFilter {
         return false;
     }
 
-    private Mono<Void> unauthorized(ServerWebExchange exchange) {
-        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        return exchange.getResponse().setComplete();
-    }
+    private void validateRequestWithToken(ServerWebExchange exchange) throws UnAuthorizedException {
+        if (RouteValidator.isSecured.test(exchange.getRequest())) {
+            if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                logger.severe("missing authorization header");
+                throw new UnAuthorizedException("missing authorization header");
+            }
 
-    private String extractTokenFromHeaders(HttpHeaders headers) {
-        String authorizationHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
+            String authHeader = Objects.requireNonNull(exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION)).get(0);
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                authHeader = authHeader.substring(7);
+            }
+            try {
+                if (Boolean.FALSE.equals(jwtUtil.isTokenExpired(authHeader))) {
+                    String username = jwtUtil.extractUsername(authHeader);
+                    if (!isUserExists(username, authHeader)) {
+                        logger.severe("User does not exists");
+                        throw new UnAuthorizedException("User does not exists");
+                    }
+                } else {
+                    logger.severe("Token Expired");
+                    throw new UnAuthorizedException("Token Expired");
+                }
+            } catch (Exception e) {
+                logger.severe("invalid access...!");
+                throw new UnAuthorizedException("un authorized access to application");
+            }
+        } else {
+            logger.severe("Not Secured Endpoint to proceed");
+            throw new UnAuthorizedException("Not Secured Endpoint to proceed");
         }
-        return null;
     }
 
-    private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
+    boolean isUserExists(String username, String token) {
+        Mono<Boolean> userExistsResponse = userServiceWebClient.post()
+                .uri("/exists/" + username)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .retrieve()
+                .bodyToMono(Boolean.class);
+
+        AtomicBoolean userExist = new AtomicBoolean(false);
+        userExistsResponse.subscribe(
+                existingUser -> {
+                    userExist.set(true);
+                    logger.info("user exists");
+                },
+                error -> logger.severe(error.getMessage())
+        );
+
+        return userExist.get();
     }
 }
