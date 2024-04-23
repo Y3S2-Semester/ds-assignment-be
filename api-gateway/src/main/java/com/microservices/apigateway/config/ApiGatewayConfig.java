@@ -17,8 +17,9 @@ public class ApiGatewayConfig {
     public RouteLocator gatewayRouter(RouteLocatorBuilder builder) {
         return builder.routes()
                 .route(p -> p
-                        .path("/identity-service/**")
-                        .filters(f -> f.rewritePath("/identity-service/(?<segment>.*)", "/${segment}").filter(jwtAuthenticationFilter))
+                        .path("/user-service/**")
+                        .filters(f -> f.rewritePath("/user-service/(?<segment>.*)", "/${segment}")
+                                .filter(jwtAuthenticationFilter))
                         .uri("http://localhost:8000"))
                 .route(p -> p
                         .path("/course-service/**")

@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: identity-service
+    name: user-service
   data:
     mongodb:
       uri: mongodb+srv://admin:zlwOj8Aqje5NxifT@cluster0.kdvjrko.mongodb.net/cluster0

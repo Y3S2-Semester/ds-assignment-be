@@ -1,83 +1,60 @@
 package com.microservices.apigateway.filter;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import com.microservices.apigateway.util.JwtUtils;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
-import java.security.Key;
+import java.util.List;
+import java.util.Objects;
 
 @Component
-@NoArgsConstructor
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GatewayFilter {
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
+    @NotNull
+    private final JwtUtils jwtUtil;
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-    private final String[] publicUrls = {
+    private final List<String> publicUrls = List.of(
             "/api/v1/auth/**",
             "/api/v1/health",
             "/api/v1/course"
-    };
+    );
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String requestUrl = exchange.getRequest().getPath().value();
-        if (isPublicUrl(requestUrl)) {
-            return chain.filter(exchange);
-        }
+        if (!publicUrls.contains(requestUrl)) {
+            if (RouteValidator.isSecured.test(exchange.getRequest())) {
+                if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+                    throw new RuntimeException("missing authorization header");
+                }
 
-        String token = extractTokenFromHeaders(exchange.getRequest().getHeaders());
-        if (token == null) {
-            return unauthorized(exchange);
-        }
+                String authHeader = Objects.requireNonNull(exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION)).get(0);
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    authHeader = authHeader.substring(7);
+                }
+                try {
+                    jwtUtil.validateToken(authHeader);
 
-        try {
-            Jws<Claims> claimsJws = Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
-            Claims body = claimsJws.getBody();
-            return chain.filter(exchange);
-        } catch (Exception e) {
-            return unauthorized(exchange);
-        }
-    }
-
-    private boolean isPublicUrl(String url) {
-        for (String publicUrl : publicUrls) {
-            if (pathMatcher.match(publicUrl, url)) {
-                return true;
+                } catch (Exception e) {
+                    System.out.println("invalid access...!");
+                    throw new RuntimeException("un authorized access to application");
+                }
+            }
+            else {
+                throw new RuntimeException("Not Secured Endpoint to proceed");
             }
         }
-        return false;
-    }
-
-    private Mono<Void> unauthorized(ServerWebExchange exchange) {
-        exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
-        return exchange.getResponse().setComplete();
-    }
-
-    private String extractTokenFromHeaders(HttpHeaders headers) {
-        String authorizationHeader = headers.getFirst(HttpHeaders.AUTHORIZATION);
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-            return authorizationHeader.substring(7);
-        }
-        return null;
-    }
-
-    private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSecret);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return chain.filter(exchange);
     }
 }
