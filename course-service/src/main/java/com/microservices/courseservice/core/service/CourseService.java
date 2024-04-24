@@ -13,5 +13,9 @@ public interface CourseService {
 
     ResponseEntity<ResponseEntityDto> getCourseByCourseName(String courseName);
 
+    ResponseEntity<ResponseEntityDto> getAllCourses();
+
+    ResponseEntity<ResponseEntityDto> getCoursesByInstructor(String instructorId);
+
 
 }
