@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class EmailServiceImpl implements EmailService {
+
     @Autowired
     JavaMailSender javaMailSender;
 
@@ -22,9 +23,7 @@ public class EmailServiceImpl implements EmailService {
     @Value("${notification.mail.bcc}")
     private String bcc;
 
-
-
-    public void sendTimetableEmail(MailSenderDto mailSenderDto) throws MessagingException {
+    public void sendMail(MailSenderDto mailSenderDto) throws MessagingException {
         log.info("EmailServiceImpl.sendTimetableEmail() invoked.");
         MimeMessage message = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true);

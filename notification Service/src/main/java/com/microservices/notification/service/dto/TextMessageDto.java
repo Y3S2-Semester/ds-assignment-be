@@ -6,6 +6,5 @@ import lombok.Data;
 public class TextMessageDto {
 
     String message;
-
     String receiver;
 }

@@ -15,7 +15,7 @@ public class TextMessageSender {
     @Value("${notification.text.number}")
     private String fromNumber;
 
-    public void sendMessage(String toNumber, String messageBody) {
+    public void sendTextMessage(String toNumber, String messageBody) {
         Message message = Message.creator(
                 new com.twilio.type.PhoneNumber("+94769654581"),
                 new com.twilio.type.PhoneNumber(fromNumber),
