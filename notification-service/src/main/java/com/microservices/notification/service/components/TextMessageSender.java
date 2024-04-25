@@ -2,8 +2,8 @@ package com.microservices.notification.service.components;
 
 import com.twilio.http.TwilioRestClient;
 import com.twilio.rest.api.v2010.account.Message;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
