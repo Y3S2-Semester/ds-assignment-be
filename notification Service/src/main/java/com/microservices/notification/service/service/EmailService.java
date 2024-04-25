@@ -5,5 +5,5 @@ import jakarta.mail.MessagingException;
 
 public interface EmailService {
 
-    void sendTimetableEmail(MailSenderDto mailSenderDto) throws MessagingException;
+    void sendMail(MailSenderDto mailSenderDto) throws MessagingException;
 }

@@ -20,15 +20,15 @@ public class NotificationSenderController {
     @Autowired
     EmailService mailSenderService;
 
-    @GetMapping("/textSender")
-    public void sendTextMessage(@RequestBody TextMessageDto textMessageDto){
-        log.info("NotificationSenderController.sendTextMessage() invoked.");
-        textMessageSender.sendMessage("+94769654581","First message");
-    }
-    @GetMapping("/mailSender")
-    public void sendTextMessage(@RequestBody MailSenderDto mailSenderDto) throws MessagingException {
-        log.info("NotificationSenderController.sendTextMessage() invoked.");
-        mailSenderService.sendTimetableEmail(mailSenderDto);
+    @GetMapping("/text-sender")
+    public void sendText(@RequestBody TextMessageDto textMessageDto){
+        log.info("NotificationSenderController.sendText() invoked.");
+        textMessageSender.sendTextMessage("+94769654581","First message");
     }
 
+    @GetMapping("/mail-sender")
+    public void sendMail(@RequestBody MailSenderDto mailSenderDto) throws MessagingException {
+        log.info("NotificationSenderController.sendMail() invoked.");
+        mailSenderService.sendMail(mailSenderDto);
+    }
 }

@@ -8,5 +8,4 @@ public class MailSenderDto {
     private String subject;
     private String message;
     private String receiver;
-
 }

@@ -15,14 +15,15 @@ public class TwilioConfig {
 
     @Value("${notification.text.twillio_account_token}")
     private String twillio_account_token;
+
     @Bean
     public TwilioRestClient twilioRestClient() {
         Twilio.init(twillio_account_sid, twillio_account_token);
         return Twilio.getRestClient();
     }
+
     @Bean
     public TextMessageSender textMessageSender() {
         return new TextMessageSender();
     }
-
 }

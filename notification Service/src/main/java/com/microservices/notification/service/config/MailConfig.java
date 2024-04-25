@@ -11,12 +11,12 @@ import java.util.Properties;
 @Configuration
 public class MailConfig {
 
-
     @Value("${notification.mail.password}")
     private String password;
 
     @Value("${notification.mail.username}")
     private String username;
+
     @Bean
     public JavaMailSender javaMailSender() {
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
