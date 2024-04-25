@@ -10,4 +10,6 @@ public interface UserService {
     User getCurrentUser();
 
     User getMe();
+
+    Boolean userExists(String username);
 }

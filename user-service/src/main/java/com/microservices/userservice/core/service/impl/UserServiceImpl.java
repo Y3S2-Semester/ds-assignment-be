@@ -6,6 +6,7 @@ import com.microservices.userservice.core.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Example;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -33,5 +34,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public User getMe() {
         return this.getCurrentUser();
+    }
+
+    @Override
+    public Boolean userExists(String username) {
+        return userRepository.exists(Example.of(User.builder().email(username).build()));
     }
 }
