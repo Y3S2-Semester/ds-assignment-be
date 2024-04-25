@@ -7,6 +7,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
 public class UserServiceWebClient {
+
     @Value("${address.base.user-service}")
     private String userServiceAddress;
 

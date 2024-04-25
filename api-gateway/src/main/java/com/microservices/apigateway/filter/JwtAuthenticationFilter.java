@@ -23,16 +23,21 @@ import java.util.logging.Logger;
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter implements GatewayFilter {
+
     @NotNull
     private final JwtUtils jwtUtil;
+
     @NotNull
     private final WebClient userServiceWebClient;
+
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
+
     private final List<String> publicUrls = List.of(
             "/api/v1/auth/**",
             "/api/v1/health",
             "/api/v1/course"
     );
+
     Logger logger = Logger.getLogger("JwtAuthenticationFilter");
 
     @SneakyThrows
