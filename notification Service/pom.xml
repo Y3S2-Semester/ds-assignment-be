@@ -12,8 +12,8 @@
     <artifactId>notification-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>Notificaion-service</name>
-    <description>Notificaion service</description>
+    <name>Notification-service</name>
+    <description>Notification service</description>
     <properties>
         <java.version>17</java.version>
         <spring-cloud.version>2023.0.0</spring-cloud.version>
