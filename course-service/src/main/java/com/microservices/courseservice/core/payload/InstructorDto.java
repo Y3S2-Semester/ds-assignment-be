@@ -1,6 +1,6 @@
-package com.microservices.courseservice.core.payload.dto;
+package com.microservices.courseservice.core.payload;
 
-import com.microservices.courseservice.core.Enum.Role;
+import com.microservices.courseservice.core.type.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 

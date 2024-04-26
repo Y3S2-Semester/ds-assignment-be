@@ -1,7 +1,6 @@
 package com.microservices.courseservice.core.payload;
 
-import com.microservices.courseservice.core.Enum.Status;
-import com.microservices.courseservice.core.payload.dto.InstructorDto;
+import com.microservices.courseservice.core.type.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

@@ -1,6 +1,6 @@
-package com.microservices.courseservice.core.payload.dto;
+package com.microservices.courseservice.core.payload;
 
-import com.microservices.courseservice.core.Enum.Status;
+import com.microservices.courseservice.core.type.Status;
 import lombok.Data;
 
 @Data

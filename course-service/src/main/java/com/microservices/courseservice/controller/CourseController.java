@@ -1,13 +1,11 @@
 package com.microservices.courseservice.controller;
 
-import com.microservices.courseservice.core.payload.CourseCreateRequestDto;
 import com.microservices.courseservice.core.payload.common.ResponseEntityDto;
-import com.microservices.courseservice.core.payload.dto.CourseDto;
+import com.microservices.courseservice.core.payload.CourseDto;
 import com.microservices.courseservice.core.service.CourseService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

@@ -1,8 +1,7 @@
 package com.microservices.courseservice.core.service;
 
-import com.microservices.courseservice.core.payload.CourseCreateRequestDto;
 import com.microservices.courseservice.core.payload.common.ResponseEntityDto;
-import com.microservices.courseservice.core.payload.dto.CourseDto;
+import com.microservices.courseservice.core.payload.CourseDto;
 import org.springframework.http.ResponseEntity;
 
 public interface CourseService {
@@ -16,6 +15,4 @@ public interface CourseService {
     ResponseEntity<ResponseEntityDto> getAllCourses();
 
     ResponseEntity<ResponseEntityDto> getCoursesByInstructor(String instructorId);
-
-
 }

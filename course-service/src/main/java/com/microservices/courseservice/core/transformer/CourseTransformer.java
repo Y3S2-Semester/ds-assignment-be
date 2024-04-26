@@ -1,8 +1,8 @@
-package com.microservices.courseservice.core;
+package com.microservices.courseservice.core.transformer;
 
 import com.microservices.courseservice.core.model.Course;
-import com.microservices.courseservice.core.payload.dto.CourseDto;
-import com.microservices.courseservice.core.payload.dto.InstructorDto;
+import com.microservices.courseservice.core.payload.CourseDto;
+import com.microservices.courseservice.core.payload.InstructorDto;
 import org.springframework.stereotype.Component;
 
 @Component
