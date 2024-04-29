@@ -1,0 +1,8 @@
+server:
+  port: 8300
+spring:
+  application:
+    name: enrollment-service
+  data:
+    mongodb:
+      uri: mongodb+srv://admin:2lgiIC4opKrZ2jVR@cluster0.vzb0mdl.mongodb.net/enrollment-service
