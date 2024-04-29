@@ -7,3 +7,5 @@
 | User Service         | 8000 |
 | Course Service       | 8100 |
 | Notification Service | 7000 |
+| Notification Service | 8300 |
+
