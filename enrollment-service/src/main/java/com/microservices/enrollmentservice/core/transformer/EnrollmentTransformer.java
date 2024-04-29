@@ -13,6 +13,7 @@ public class EnrollmentTransformer {
         enrollmentResponseDto.setId(enrollment.getId());
         enrollmentResponseDto.setCourse(null); // set course details using course id
         enrollmentResponseDto.setUser(null); // set user details using user id
+        enrollmentResponseDto.setEnrollmentDate(enrollment.getEnrollmentDate());
         enrollmentResponseDto.setCompletionStatus(enrollment.getCompletionStatus());
         enrollmentResponseDto.setActive(enrollment.isActive());
         return enrollmentResponseDto;
