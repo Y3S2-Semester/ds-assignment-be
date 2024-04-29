@@ -11,7 +11,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 @Document(collection = "enrollment")
 @Data
