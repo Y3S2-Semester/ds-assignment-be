@@ -1,5 +1,6 @@
 package com.microservices.courseservice.core.model;
 
+import com.microservices.courseservice.core.type.Category;
 import com.microservices.courseservice.core.type.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,9 +24,9 @@ public class Course {
 
     private String courseName;
 
-    private String category;
+    private Category category;
 
-    private Double price;
+    private double price;
 
     private String courseDescription;
 
@@ -33,6 +34,6 @@ public class Course {
 
     private Status status;
 
-    private Boolean isActive;
+    private boolean isActive = true;
 
 }

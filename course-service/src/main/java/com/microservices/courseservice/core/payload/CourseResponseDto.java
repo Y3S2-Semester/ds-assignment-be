@@ -1,23 +1,18 @@
 package com.microservices.courseservice.core.payload;
 
+import com.microservices.courseservice.core.type.Category;
 import com.microservices.courseservice.core.type.Status;
 import lombok.Data;
 
 @Data
-public class CourseDto {
+public class CourseResponseDto {
 
     private String id;
     private String courseName;
-    private String category;
-
-    private Double price;
-
     private String courseDescription;
-
+    private String instructor;
+    private Category category;
+    private double price;
     private Status status;
-
-    private InstructorDto instructorDto;
-
-    private Boolean isActive;
-
+    private boolean isActive;
 }

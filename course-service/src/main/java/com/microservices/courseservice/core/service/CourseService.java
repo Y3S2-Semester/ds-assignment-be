@@ -1,18 +1,17 @@
 package com.microservices.courseservice.core.service;
 
+import com.microservices.courseservice.core.payload.CourseRequestDto;
 import com.microservices.courseservice.core.payload.common.ResponseEntityDto;
-import com.microservices.courseservice.core.payload.CourseDto;
-import org.springframework.http.ResponseEntity;
 
 public interface CourseService {
 
-    ResponseEntity<ResponseEntityDto> addCourse(CourseDto courseDto);
+    ResponseEntityDto addCourse(CourseRequestDto courseRequestDto);
 
-    ResponseEntity<ResponseEntityDto> getCourseByCourseId(String courseId);
+    ResponseEntityDto getCourseByCourseId(String courseId);
 
-    ResponseEntity<ResponseEntityDto> getCourseByCourseName(String courseName);
+    ResponseEntityDto getCourseByCourseName(String courseName);
 
-    ResponseEntity<ResponseEntityDto> getAllCourses();
+    ResponseEntityDto getAllCourses();
 
-    ResponseEntity<ResponseEntityDto> getCoursesByInstructor(String instructorId);
+    ResponseEntityDto getCoursesByInstructor(String instructorId);
 }
