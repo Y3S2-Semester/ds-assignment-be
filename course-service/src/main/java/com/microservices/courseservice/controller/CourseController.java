@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -38,9 +39,9 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping
-    public ResponseEntity<ResponseEntityDto> getCourseById(@RequestParam String courseId) {
-        ResponseEntityDto response = courseService.getCourseByCourseId(courseId);
+    @GetMapping("/{id}")
+    public ResponseEntity<ResponseEntityDto> getCourseById(@PathVariable String id) {
+        ResponseEntityDto response = courseService.getCourseByCourseId(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
