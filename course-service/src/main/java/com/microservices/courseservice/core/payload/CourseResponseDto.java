@@ -10,7 +10,7 @@ public class CourseResponseDto {
     private String id;
     private String courseName;
     private String courseDescription;
-    private String instructor;
+    private InstructorResponseDto instructor;
     private Category category;
     private double price;
     private Status status;

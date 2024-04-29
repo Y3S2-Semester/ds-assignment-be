@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class InstructorDto {
+public class InstructorResponseDto {
 
     private String id;
     private String name;

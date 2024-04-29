@@ -32,7 +32,7 @@ public class CourseServiceImpl implements CourseService {
         try {
             log.info("CourseServiceImpl.addCourse() has been invoked");
             Course savedCourse = courseRepository.save(courseTransformer.reverseTransform(courseRequestDto));
-            CourseResponseDto transformCourseResponseDto = courseTransformer.transformCourseDto(savedCourse);
+            CourseResponseDto transformCourseResponseDto = courseTransformer.transformCourseDto(savedCourse, null);
             return new ResponseEntityDto(false, transformCourseResponseDto);
         } catch (Exception ex) {
             log.error("Error occurred while adding course: {}", ex.getMessage());
@@ -45,7 +45,7 @@ public class CourseServiceImpl implements CourseService {
         log.info("CourseServiceImpl.getCourseByCourseId() has been invoked");
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
         if (optionalCourse.isPresent()) {
-            CourseResponseDto courseResponseDto = courseTransformer.transformCourseDto(optionalCourse.get());
+            CourseResponseDto courseResponseDto = courseTransformer.transformCourseDto(optionalCourse.get(), null);
             return new ResponseEntityDto(false, courseResponseDto);
         } else {
             log.warn("Course with ID {} not found", courseId);
@@ -58,7 +58,7 @@ public class CourseServiceImpl implements CourseService {
         log.info("CourseServiceImpl.getCourseByCourseName() has been invoked");
         Optional<Course> optionalCourse = courseRepository.findByCourseName(courseName);
         if (optionalCourse.isPresent()) {
-            CourseResponseDto courseResponseDto = courseTransformer.transformCourseDto(optionalCourse.get());
+            CourseResponseDto courseResponseDto = courseTransformer.transformCourseDto(optionalCourse.get(), null);
             return new ResponseEntityDto(false, courseResponseDto);
         } else {
             log.warn("Course with name {} not found", courseName);
@@ -72,7 +72,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
         Iterable<Course> courses = courseRepository.findAll();
         for (Course course : courses) {
-            courseResponseDtos.add(courseTransformer.transformCourseDto(course));
+            courseResponseDtos.add(courseTransformer.transformCourseDto(course, null));
         }
         return new ResponseEntityDto(false, courseResponseDtos);
     }
@@ -83,7 +83,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
         Iterable<Course> courses = courseRepository.findByInstructorId(instructorId);
         for (Course course : courses) {
-            courseResponseDtos.add(courseTransformer.transformCourseDto(course));
+            courseResponseDtos.add(courseTransformer.transformCourseDto(course, null));
         }
         return new ResponseEntityDto(false, courseResponseDtos);
     }

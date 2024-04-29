@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/api/v1/course")
@@ -28,13 +29,13 @@ public class CourseController {
     private final CourseService courseService;
 
     @PostMapping
-    public ResponseEntity<ResponseEntityDto> addCourse(@RequestBody CourseRequestDto courseRequestDto) {
+    public ResponseEntity<ResponseEntityDto> addCourse(@Valid @RequestBody CourseRequestDto courseRequestDto) {
         ResponseEntityDto response = courseService.addCourse(courseRequestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<ResponseEntityDto> updateCourse(@RequestBody CourseRequestDto courseRequestDto) {
+    public ResponseEntity<ResponseEntityDto> updateCourse(@Valid @RequestBody CourseRequestDto courseRequestDto) {
         ResponseEntityDto response = courseService.addCourse(courseRequestDto); // This should be courseService.updateCourse(courseDto)
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
