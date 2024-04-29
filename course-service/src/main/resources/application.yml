@@ -5,4 +5,4 @@ spring:
     name: course-service
   data:
     mongodb:
-      uri: mongodb+srv://admin:2lgiIC4opKrZ2jVR@cluster0.9vho5ap.mongodb.net/cluster0
+      uri: mongodb+srv://admin:2lgiIC4opKrZ2jVR@cluster0.vzb0mdl.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
