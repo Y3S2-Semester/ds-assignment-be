@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 @Component
@@ -55,54 +54,40 @@ public class JwtAuthenticationFilter implements GatewayFilter {
     }
 
     private void validateRequestWithToken(ServerWebExchange exchange) throws UnAuthorizedException {
-        if (RouteValidator.isSecured.test(exchange.getRequest())) {
-            if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
-                logger.severe("missing authorization header");
-                throw new UnAuthorizedException("missing authorization header");
-            }
+        if (!exchange.getRequest().getHeaders().containsKey(HttpHeaders.AUTHORIZATION)) {
+            logger.severe("missing authorization header");
+            throw new UnAuthorizedException("missing authorization header");
+        }
 
-            String authHeader = Objects.requireNonNull(exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION)).get(0);
-            if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                authHeader = authHeader.substring(7);
-            }
-            try {
-                if (Boolean.FALSE.equals(jwtUtil.isTokenExpired(authHeader))) {
-                    String username = jwtUtil.extractUsername(authHeader);
-                    if (!isUserExists(username, authHeader)) {
-                        logger.severe("User does not exists");
-                        throw new UnAuthorizedException("User does not exists");
-                    }
-                } else {
-                    logger.severe("Token Expired");
-                    throw new UnAuthorizedException("Token Expired");
+        String authHeader = Objects.requireNonNull(exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION)).get(0);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            authHeader = authHeader.substring(7);
+        }
+        try {
+            if (Boolean.FALSE.equals(jwtUtil.isTokenExpired(authHeader))) {
+                String username = jwtUtil.extractUsername(authHeader);
+                exchange.getRequest().mutate().header("username", username);
+                exchange.getRequest().mutate().header("role", jwtUtil.extractRole(authHeader));
+
+                if (!isUserExists(username).subscribe().isDisposed()) {
+                    logger.severe("User does not exists");
+                    throw new UnAuthorizedException("User does not exists");
                 }
-            } catch (Exception e) {
-                logger.severe("invalid access...!");
-                throw new UnAuthorizedException("un authorized access to application");
+            } else {
+                logger.severe("Token Expired");
+                throw new UnAuthorizedException("Token Expired");
             }
-        } else {
-            logger.severe("Not Secured Endpoint to proceed");
-            throw new UnAuthorizedException("Not Secured Endpoint to proceed");
+        } catch (Exception e) {
+            logger.severe("invalid access...!");
+            throw new UnAuthorizedException("un authorized access to application");
         }
     }
 
-    boolean isUserExists(String username, String token) {
-        Mono<Boolean> userExistsResponse = userServiceWebClient.post()
-                .uri("/exists/" + username)
+    Mono<Boolean> isUserExists(String username) {
+        return userServiceWebClient.get()
+                .uri("/api/v1/user/exists/" + username)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.AUTHORIZATION, token)
                 .retrieve()
                 .bodyToMono(Boolean.class);
-
-        AtomicBoolean userExist = new AtomicBoolean(false);
-        userExistsResponse.subscribe(
-                existingUser -> {
-                    userExist.set(true);
-                    logger.info("user exists");
-                },
-                error -> logger.severe(error.getMessage())
-        );
-
-        return userExist.get();
     }
 }

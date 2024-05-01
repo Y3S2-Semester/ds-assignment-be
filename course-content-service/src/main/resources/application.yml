@@ -2,7 +2,7 @@ server:
   port: 8200
 
 mongodb:
-  connection-string: mongodb+srv://<username>:<password>@cluster0.jxpty5s.mongodb.net/e-academy?retryWrites=true&w=majority&appName=Cluster0
+  connection-string: mongodb+srv://shabina:password@cluster0.jxpty5s.mongodb.net/e-academy?retryWrites=true&w=majority&appName=Cluster0
 
 spring:
   application:

@@ -12,4 +12,8 @@ public class ModuleUtils {
 
         return calendar.getTime();
     }
+
+    public static boolean validString(String input) {
+        return input!=null && !input.isEmpty();
+    }
 }
