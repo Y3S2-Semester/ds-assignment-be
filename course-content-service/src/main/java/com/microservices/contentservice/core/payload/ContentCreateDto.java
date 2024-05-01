@@ -14,5 +14,4 @@ public class ContentCreateDto {
     private ContentType contentType;
     @NonNull
     private String contentAccessLink;
-    private Boolean visible = false;
 }

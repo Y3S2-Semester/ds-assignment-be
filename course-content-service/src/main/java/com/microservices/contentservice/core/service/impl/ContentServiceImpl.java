@@ -9,6 +9,7 @@ import com.microservices.contentservice.core.payload.ContentUpdateDto;
 import com.microservices.contentservice.core.payload.common.ResponseEntityDto;
 import com.microservices.contentservice.core.repository.ContentRepository;
 import com.microservices.contentservice.core.service.ContentService;
+import com.microservices.contentservice.core.type.ApprovalStatus;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,6 +32,7 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public ResponseEntityDto getAllContentByCourseId(String courseId) {
+        //Optional<Object> course = null; //todo interservice communication
         List<Content> contentList = contentRepository.findAllByCourseId(courseId);
         List<ContentResponseDto> contentResponseDtoList = mapper.contentListToContentResponseDtoList(contentList);
         return new ResponseEntityDto(false, contentResponseDtoList);
@@ -39,11 +41,11 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public ResponseEntityDto addContentToCourse(String courseId, ContentCreateDto contentCreateDto) {
         Content contentToSave = mapper.contentCreateDtoToContent(contentCreateDto);
-        if (contentCreateDto.getVisible()) {
-            contentToSave.setPublishedDate(new Date());
-        }
         //Optional<Object> course = null; //todo interservice communication
         contentToSave.setCourseId(courseId);
+        contentToSave.setVisible(false);
+        contentToSave.setActive(true);
+        contentToSave.setApproved(ApprovalStatus.AWAITING);
         contentToSave = contentRepository.save(contentToSave);
         return new ResponseEntityDto(false, contentToSave);
     }
@@ -55,9 +57,6 @@ public class ContentServiceImpl implements ContentService {
             throw new ModuleException("Content not found to update");
 
         Content content = optionalContent.get();
-        if (contentUpdateDto.getVisible() && (Boolean.FALSE.equals(content.getVisible())))
-                content.setPublishedDate(new Date());
-
         if (contentUpdateDto.getContentTitle() != null)
             content.setContentTitle(contentUpdateDto.getContentTitle());
 
@@ -91,5 +90,23 @@ public class ContentServiceImpl implements ContentService {
         content.setUpdatedAt(new Date());
         content = contentRepository.save(content);
         return new ResponseEntityDto(false, content);
+    }
+
+    @Override
+    public ResponseEntityDto getAllContentAwaitingApproval() {
+        List<Content> contentList = contentRepository.findAllByApproved(ApprovalStatus.AWAITING);
+        List<ContentResponseDto> contentResponseDtoList = mapper.contentListToContentResponseDtoList(contentList);
+        return new ResponseEntityDto(false, contentResponseDtoList);
+    }
+
+    @Override
+    public ResponseEntityDto updateApprovalOfContent(String id, ApprovalStatus approvalStatus) {
+        Optional<Content> optionalContent = contentRepository.findById(id);
+        if (optionalContent.isEmpty())
+            throw new ModuleException("Course content not found");
+        Content content = optionalContent.get();
+        content.setApproved(approvalStatus);
+        content.setPublishedDate(new Date());
+        return new ResponseEntityDto(false, mapper.contentToContentResponseDto(content));
     }
 }

@@ -1,5 +1,6 @@
 package com.microservices.contentservice.core.model;
 
+import com.microservices.contentservice.core.type.ApprovalStatus;
 import com.microservices.contentservice.core.type.ContentType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -47,4 +48,7 @@ public class Content extends Auditable{
 
     @Field(targetType = FieldType.BOOLEAN)
     private Boolean active;
+
+    @Field(targetType = FieldType.STRING)
+    private ApprovalStatus approved;
 }
