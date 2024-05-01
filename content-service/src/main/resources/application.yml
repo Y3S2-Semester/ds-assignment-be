@@ -1,8 +1,0 @@
-server:
-  port: 8400
-spring:
-  application:
-    name: content-service
-  data:
-    mongodb:
-      uri: mongodb+srv://admin:2lgiIC4opKrZ2jVR@cluster0.vzb0mdl.mongodb.net/content-service
