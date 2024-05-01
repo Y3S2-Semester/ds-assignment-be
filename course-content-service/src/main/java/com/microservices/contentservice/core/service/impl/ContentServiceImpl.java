@@ -1,13 +1,22 @@
 package com.microservices.contentservice.core.service.impl;
 
+import com.microservices.contentservice.core.exception.ModuleException;
+import com.microservices.contentservice.core.mapper.MapStructMapper;
+import com.microservices.contentservice.core.model.Content;
+import com.microservices.contentservice.core.payload.ContentCreateDto;
+import com.microservices.contentservice.core.payload.ContentResponseDto;
+import com.microservices.contentservice.core.payload.ContentUpdateDto;
 import com.microservices.contentservice.core.payload.common.ResponseEntityDto;
-import com.microservices.contentservice.core.repository.CourseRepository;
+import com.microservices.contentservice.core.repository.ContentRepository;
 import com.microservices.contentservice.core.service.ContentService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -15,13 +24,72 @@ import org.springframework.stereotype.Service;
 public class ContentServiceImpl implements ContentService {
 
     @NonNull
-    private final CourseRepository courseRepository;
+    private final ContentRepository contentRepository;
 
     @NonNull
-    private final MessageSource messageSource;
+    private final MapStructMapper mapper;
 
     @Override
-    public ResponseEntityDto getAllContent(String courseId){
-        return new ResponseEntityDto(false, "hello world");
+    public ResponseEntityDto getAllContentByCourseId(String courseId) {
+        List<Content> contentList = contentRepository.findAllByCourseId(courseId);
+        List<ContentResponseDto> contentResponseDtoList = mapper.contentListToContentResponseDtoList(contentList);
+        return new ResponseEntityDto(false, contentResponseDtoList);
+    }
+
+    @Override
+    public ResponseEntityDto addContentToCourse(String courseId, ContentCreateDto contentCreateDto) {
+        Content contentToSave = mapper.contentCreateDtoToContent(contentCreateDto);
+        if (contentCreateDto.getVisible()) {
+            contentToSave.setPublishedDate(new Date());
+        }
+        //Optional<Object> course = null; //todo interservice communication
+        contentToSave.setCourseId(courseId);
+        contentToSave = contentRepository.save(contentToSave);
+        return new ResponseEntityDto(false, contentToSave);
+    }
+
+    @Override
+    public ResponseEntityDto updateContent(String id, ContentUpdateDto contentUpdateDto) {
+        Optional<Content> optionalContent = contentRepository.findById(id);
+        if (optionalContent.isEmpty())
+            throw new ModuleException("Content not found to update");
+
+        Content content = optionalContent.get();
+        if (contentUpdateDto.getVisible() && (Boolean.FALSE.equals(content.getVisible())))
+                content.setPublishedDate(new Date());
+
+        if (contentUpdateDto.getContentTitle() != null)
+            content.setContentTitle(contentUpdateDto.getContentTitle());
+
+        if (contentUpdateDto.getContentAccessLink() != null)
+            content.setContentAccessLink(contentUpdateDto.getContentAccessLink());
+
+        if (contentUpdateDto.getVisible() != null)
+            content.setVisible(content.getVisible());
+
+        content.setUpdatedAt(new Date());
+        content = contentRepository.save(content);
+        return new ResponseEntityDto(false, content);
+    }
+
+    @Override
+    public ResponseEntityDto getContentById(String id) {
+        Optional<Content> content = contentRepository.findById(id);
+        if (content.isEmpty())
+            throw new ModuleException("Course content not found");
+
+        return new ResponseEntityDto(false, mapper.contentToContentResponseDto(content.get()));
+    }
+
+    @Override
+    public ResponseEntityDto archiveContent(String id) {
+        Optional<Content> optionalContent = contentRepository.findById(id);
+        if (optionalContent.isEmpty())
+            throw new ModuleException("Course content not found");
+        Content content = optionalContent.get();
+        content.setActive(false);
+        content.setUpdatedAt(new Date());
+        content = contentRepository.save(content);
+        return new ResponseEntityDto(false, content);
     }
 }
