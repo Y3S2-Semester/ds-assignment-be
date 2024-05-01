@@ -34,7 +34,7 @@ public class JwtServiceImpl implements JwtService {
     public String extractUserName(String token) {
         String userName = "";
         try {
-            userName = extractClaim(token, Claims::getSubject);
+            userName = extractClaim(token, claims -> claims.get("username", String.class));
         } catch (Exception e){
             log.info(e.getMessage());
         }
@@ -65,6 +65,7 @@ public class JwtServiceImpl implements JwtService {
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
+        claims.put("username", userDetails.getUsername());
         if (extraClaims != null) {
             claims.putAll(extraClaims);
         }

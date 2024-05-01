@@ -18,12 +18,12 @@ public class AuthController {
     @NonNull
     private final AuthService authService;
 
-    @PostMapping(value = "/admin/sign-up", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "sign-up", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String signUp(@RequestBody SignUpRequest signUpRequest) {
         return authService.signUp(signUpRequest.getEmail(), signUpRequest.getPassword());
     }
 
-    @PostMapping(value = "/admin/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
     public String signIn(@RequestBody SignUpRequest signUpRequest) {
         return authService.signIn(signUpRequest.getEmail(), signUpRequest.getPassword());
     }

@@ -6,12 +6,13 @@ import com.microservices.userservice.core.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Example;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -38,6 +39,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Boolean userExists(String username) {
-        return userRepository.exists(Example.of(User.builder().email(username).build()));
+        Optional<User> user = userRepository.findByEmail(username);
+        return user.isPresent();
     }
 }

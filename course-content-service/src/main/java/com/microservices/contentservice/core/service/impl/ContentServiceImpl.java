@@ -26,7 +26,6 @@ public class ContentServiceImpl implements ContentService {
 
     @NonNull
     private final ContentRepository contentRepository;
-
     @NonNull
     private final MapStructMapper mapper;
 
