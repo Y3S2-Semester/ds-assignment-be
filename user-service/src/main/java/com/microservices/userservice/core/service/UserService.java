@@ -12,4 +12,6 @@ public interface UserService {
     User getMe();
 
     Boolean userExists(String username);
+
+    User getUserById(String id);
 }
