@@ -1,5 +1,7 @@
 package com.microservices.courseservice.core.model;
 
+import com.microservices.courseservice.core.type.Category;
+import com.microservices.courseservice.core.type.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,7 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.FieldType;
 
-@Document(collation = "course")
+@Document(collection = "course")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +20,20 @@ public class Course {
 
     @Id
     @Field(targetType = FieldType.OBJECT_ID)
-    private String id;
+    private String courseId;
+
+    private String courseName;
+
+    private Category category;
+
+    private double price;
+
+    private String courseDescription;
+
+    private String instructorId;
+
+    private Status status;
+
+    private boolean isActive = true;
 
 }

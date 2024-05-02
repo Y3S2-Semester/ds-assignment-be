@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 @ControllerAdvice
 class GlobalExceptionHandler {
+
     Logger exceptionLogger = Logger.getLogger("ExceptionHandler");
 
     @ExceptionHandler(UnAuthorizedException.class)
