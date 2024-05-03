@@ -20,7 +20,7 @@ public class UserController {
     @NonNull
     private UserService userService;
 
-    @GetMapping
+    @GetMapping("me")
     public User getMe() {
         return userService.getMe();
     }
