@@ -1,12 +1,15 @@
 package com.microservices.userservice.controller;
 
 import com.microservices.userservice.core.model.User;
+import com.microservices.userservice.core.payload.common.ResponseEntityDto;
 import com.microservices.userservice.core.service.UserService;
+import com.microservices.userservice.core.type.Role;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,7 +31,12 @@ public class UserController {
     }
 
     @GetMapping("{id}")
-    public User getUserById(@PathVariable String id) {
+    public ResponseEntityDto getUserById(@PathVariable String id) {
         return userService.getUserById(id);
+    }
+
+    @GetMapping
+    public ResponseEntityDto getAllUserByOptionalRole(@RequestParam Role role) {
+        return userService.getAllUserByOptionalRole(role);
     }
 }

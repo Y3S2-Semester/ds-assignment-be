@@ -1,9 +1,12 @@
 package com.microservices.userservice.core.service;
 
+import com.microservices.userservice.core.payload.SignUpRequest;
+import com.microservices.userservice.core.payload.common.ResponseEntityDto;
+
 public interface AuthService {
 
-    String signUp(String email, String password);
+    ResponseEntityDto signUp(SignUpRequest signUpRequest);
 
-    String signIn(String email, String password);
+    ResponseEntityDto signIn(String email, String password);
 }
 

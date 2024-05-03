@@ -1,6 +1,7 @@
 package com.microservices.userservice.controller;
 
-import com.microservices.userservice.core.dto.SignUpRequest;
+import com.microservices.userservice.core.payload.SignUpRequest;
+import com.microservices.userservice.core.payload.common.ResponseEntityDto;
 import com.microservices.userservice.core.service.AuthService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "sign-up", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public String signUp(@RequestBody SignUpRequest signUpRequest) {
-        return authService.signUp(signUpRequest.getEmail(), signUpRequest.getPassword());
+    public ResponseEntityDto signUp(@RequestBody SignUpRequest signUpRequest) {
+        return authService.signUp(signUpRequest);
     }
 
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public String signIn(@RequestBody SignUpRequest signUpRequest) {
-        return authService.signIn(signUpRequest.getEmail(), signUpRequest.getPassword());
+    public ResponseEntityDto signIn(@RequestBody @NonNull String email, @RequestBody @NonNull String password) {
+        return authService.signIn(email, password);
     }
 }
