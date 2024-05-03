@@ -1,16 +1,20 @@
 package com.microservices.userservice.core.service.impl;
 
+import com.microservices.userservice.core.exception.ModuleException;
+import com.microservices.userservice.core.payload.SignUpRequest;
 import com.microservices.userservice.core.model.User;
+import com.microservices.userservice.core.payload.common.ResponseEntityDto;
 import com.microservices.userservice.core.repository.UserRepository;
 import com.microservices.userservice.core.service.AuthService;
 import com.microservices.userservice.core.service.JwtService;
-import com.microservices.userservice.core.type.Role;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -25,36 +29,40 @@ public class AuthServiceImpl implements AuthService {
     private final JwtService jwtService;
 
     @Override
-    public String signUp(String email, String password) {
+    public ResponseEntityDto signUp(SignUpRequest signUpRequest) {
+        Optional<User> userOptional = userRepository.findByEmail(signUpRequest.getEmail());
+        if (userOptional.isPresent()) {
+            throw new ModuleException("User already exists");
+        }
+        var user = User.builder()
+                .email(signUpRequest.getEmail())
+                .password(passwordEncoder.encode(signUpRequest.getPassword()))
+                .role(signUpRequest.getRole())
+                .creationDate(LocalDate.now())
+                .name(signUpRequest.getName())
+                .build();
         try {
-            Optional<User> userOptional = userRepository.findByEmail(email);
-            if (userOptional.isPresent()) {
-                return "Already exists";
-            }
-            var user = User.builder()
-                    .email(email)
-                    .password(passwordEncoder.encode(password))
-                    .role(Role.ADMIN)
-                    .build();
-            userRepository.save(user);
-            return jwtService.generateToken(user);
+            user = userRepository.save(user);
+            String token = jwtService.generateToken(user);
+            return new ResponseEntityDto(false, token);
         } catch (Exception e) {
             log.error("SignUp: Error occurred: {}", e.getMessage());
+            throw new ModuleException("Failed to sign up");
         }
-        return "Failed to sign up";
     }
 
     @Override
-    public String signIn(String email, String password) {
+    public ResponseEntityDto signIn(String email, String password) {
         try {
             Optional<User> user = userRepository.findByEmail(email);
             if (user.isPresent()) {
-                return jwtService.generateToken(user.get());
+                String token = jwtService.generateToken(user.get());
+                return new ResponseEntityDto(false, token);
             }
-            return "Unauthorized";
+            throw new AccessDeniedException("Unauthorized");
         } catch (Exception e) {
             log.error("signIn: Error occurred: {}", e.getMessage());
+            throw new AccessDeniedException(e.getMessage());
         }
-        return "Failed to sign in";
     }
 }

@@ -1,6 +1,8 @@
 package com.microservices.userservice.core.service;
 
 import com.microservices.userservice.core.model.User;
+import com.microservices.userservice.core.payload.common.ResponseEntityDto;
+import com.microservices.userservice.core.type.Role;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 public interface UserService {
@@ -13,5 +15,7 @@ public interface UserService {
 
     Boolean userExists(String username);
 
-    User getUserById(String id);
+    ResponseEntityDto getUserById(String id);
+
+    ResponseEntityDto getAllUserByOptionalRole(Role role);
 }
