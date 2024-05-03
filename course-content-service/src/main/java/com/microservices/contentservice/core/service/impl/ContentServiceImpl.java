@@ -1,5 +1,6 @@
 package com.microservices.contentservice.core.service.impl;
 
+import com.microservices.contentservice.controller.CourseServiceClient;
 import com.microservices.contentservice.core.exception.ModuleException;
 import com.microservices.contentservice.core.mapper.MapStructMapper;
 import com.microservices.contentservice.core.model.Content;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -28,10 +30,15 @@ public class ContentServiceImpl implements ContentService {
     private final ContentRepository contentRepository;
     @NonNull
     private final MapStructMapper mapper;
+    @NonNull
+    private final CourseServiceClient courseServiceClient;
 
     @Override
     public ResponseEntityDto getAllContentByCourseId(String courseId) {
-        //Optional<Object> course = null; //todo interservice communication
+        ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
+        if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
+            throw new ModuleException("Course id not found");
+        }
         List<Content> contentList = contentRepository.findAllByCourseId(courseId);
         List<ContentResponseDto> contentResponseDtoList = mapper.contentListToContentResponseDtoList(contentList);
         return new ResponseEntityDto(false, contentResponseDtoList);
