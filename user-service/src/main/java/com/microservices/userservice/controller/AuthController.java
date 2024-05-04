@@ -1,8 +1,10 @@
 package com.microservices.userservice.controller;
 
+import com.microservices.userservice.core.payload.SignInRequest;
 import com.microservices.userservice.core.payload.SignUpRequest;
 import com.microservices.userservice.core.payload.common.ResponseEntityDto;
 import com.microservices.userservice.core.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -25,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntityDto signIn(@RequestBody @NonNull String email, @RequestBody @NonNull String password) {
-        return authService.signIn(email, password);
+    public ResponseEntityDto signIn(@RequestBody @Valid SignInRequest signInRequest) {
+        return authService.signIn(signInRequest.getEmail(), signInRequest.getPassword());
     }
 }
