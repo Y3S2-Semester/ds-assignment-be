@@ -1,6 +1,7 @@
 package com.microservices.contentservice.core.service.impl;
 
 import com.microservices.contentservice.controller.CourseServiceClient;
+import com.microservices.contentservice.core.config.JwtAuthenticationFilter;
 import com.microservices.contentservice.core.exception.ModuleException;
 import com.microservices.contentservice.core.mapper.MapStructMapper;
 import com.microservices.contentservice.core.model.Content;
@@ -35,7 +36,7 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public ResponseEntityDto getAllContentByCourseId(String courseId) {
-        ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
+        ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course id not found");
         }

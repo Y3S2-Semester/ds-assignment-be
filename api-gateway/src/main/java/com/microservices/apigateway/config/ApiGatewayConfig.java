@@ -30,17 +30,17 @@ public class ApiGatewayConfig {
         String replacement = "/${segment}";
         return builder.routes()
                 .route(p -> p
-                        .path("/user/**")
+                        .path("/USER/**")
                         .filters(f -> f.rewritePath("/USER/(?<segment>.*)", replacement)
                                 .filter(jwtAuthenticationFilter))
                         .uri(userServiceAddress))
                 .route(p -> p
-                        .path("/course/**")
+                        .path("/COURSE/**")
                         .filters(f -> f.rewritePath("/COURSE/(?<segment>.*)", replacement)
                                 .filter(jwtAuthenticationFilter))
                         .uri(courseServiceAddress))
                 .route(p -> p
-                        .path("/content/**")
+                        .path("/CONTENT/**")
                         .filters(f -> f.rewritePath("/CONTENT/(?<segment>.*)", replacement)
                                 .filter(jwtAuthenticationFilter))
                         .uri(contentServiceAddress))
