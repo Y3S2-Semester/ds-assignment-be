@@ -27,7 +27,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntityDto signIn(@RequestBody @Valid SignInRequest signInRequest) {
+    public ResponseEntityDto signIn(@RequestBody SignInRequest signInRequest) {
         return authService.signIn(signInRequest.getEmail(), signInRequest.getPassword());
     }
 }

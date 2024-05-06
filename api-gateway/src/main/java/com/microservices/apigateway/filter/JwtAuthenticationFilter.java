@@ -8,10 +8,8 @@ import lombok.SneakyThrows;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
-import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -25,9 +23,6 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 
     @NotNull
     private final JwtUtils jwtUtil;
-
-    @NotNull
-    private final WebClient userServiceWebClient;
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
@@ -73,11 +68,6 @@ public class JwtAuthenticationFilter implements GatewayFilter {
                 String username = jwtUtil.extractUsername(authHeader);
                 exchange.getRequest().mutate().header("username", username);
                 exchange.getRequest().mutate().header("role", jwtUtil.extractRole(authHeader));
-
-                if (!isUserExists(username).subscribe().isDisposed()) {
-                    logger.severe("User does not exists");
-                    throw new UnAuthorizedException("User does not exists");
-                }
             } else {
                 logger.severe("Token Expired");
                 throw new UnAuthorizedException("Token Expired");
@@ -86,13 +76,5 @@ public class JwtAuthenticationFilter implements GatewayFilter {
             logger.severe("invalid access...!");
             throw new UnAuthorizedException("un authorized access to application");
         }
-    }
-
-    Mono<Boolean> isUserExists(String username) {
-        return userServiceWebClient.get()
-                .uri("/api/v1/user/exists/" + username)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .retrieve()
-                .bodyToMono(Boolean.class);
     }
 }
