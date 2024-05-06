@@ -1,4 +1,4 @@
-package com.microservices.contentservice.controller;
+package com.microservices.contentservice.client;
 
 import com.microservices.contentservice.core.payload.common.ResponseEntityDto;
 import org.springframework.cloud.openfeign.FeignClient;
