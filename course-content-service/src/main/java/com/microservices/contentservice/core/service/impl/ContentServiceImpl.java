@@ -1,6 +1,6 @@
 package com.microservices.contentservice.core.service.impl;
 
-import com.microservices.contentservice.controller.CourseServiceClient;
+import com.microservices.contentservice.client.CourseServiceClient;
 import com.microservices.contentservice.core.config.JwtAuthenticationFilter;
 import com.microservices.contentservice.core.exception.ModuleException;
 import com.microservices.contentservice.core.mapper.MapStructMapper;
