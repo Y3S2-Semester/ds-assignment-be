@@ -64,7 +64,8 @@ public class SecurityConfiguration {
                         .requestMatchers(
                                 "/api/v1/auth/**",
                                 "/api/v1/user/exists/**",
-                                "api/v1/health")
+                                "api/v1/health",
+                                "/api/v1/user/**")
                         .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
