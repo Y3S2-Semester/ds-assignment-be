@@ -4,7 +4,6 @@ import com.microservices.userservice.core.payload.SignInRequest;
 import com.microservices.userservice.core.payload.SignUpRequest;
 import com.microservices.userservice.core.payload.common.ResponseEntityDto;
 import com.microservices.userservice.core.service.AuthService;
-import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
