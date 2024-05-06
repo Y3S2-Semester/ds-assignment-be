@@ -6,8 +6,8 @@ import java.util.List;
 
 public class ResponseEntityDto {
 
-    private static final String SUCCESSFUL = "successful";
-    private static final String UNSUCCESSFUL = "unsuccessful";
+    public static final String SUCCESSFUL = "successful";
+    public static final String UNSUCCESSFUL = "unsuccessful";
     private String status;
     private List<Object> results;
 

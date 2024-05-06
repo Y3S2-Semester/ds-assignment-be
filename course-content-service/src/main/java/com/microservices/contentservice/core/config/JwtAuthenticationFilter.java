@@ -19,6 +19,8 @@ import java.util.stream.Collectors;
 @Configuration
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    public static ThreadLocal<String> jwtToken = new ThreadLocal<>();
+
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = httpServletRequest.getHeader("Authorization");
@@ -36,8 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, simpleGrantedAuthorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
-        logger.info(SecurityContextHolder.getContext().getAuthentication().getDetails());
+        jwtToken.set(authHeader);
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 }
