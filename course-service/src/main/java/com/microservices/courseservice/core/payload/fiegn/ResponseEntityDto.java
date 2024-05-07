@@ -1,4 +1,6 @@
-package com.microservices.userservice.core.payload.common;
+package com.microservices.courseservice.core.payload.fiegn;
+
+import com.microservices.courseservice.core.payload.common.Acknowledgement;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -36,7 +38,12 @@ public class ResponseEntityDto {
 
     protected void putToResults(Object data) {
         if (data != null) {
-            results.add(data);
+
+            if (data instanceof Collection<?>) {
+                results.addAll((Collection<?>) data);
+            } else {
+                results.add(data);
+            }
         }
     }
 
@@ -48,7 +55,7 @@ public class ResponseEntityDto {
         this.status = status;
     }
 
-    public List<Object> getResults() {
+    public List<?> getResults() {
         return results;
     }
 
