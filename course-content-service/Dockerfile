@@ -22,6 +22,6 @@ FROM gcr.io/distroless/java17-debian11
 
 WORKDIR /opt/app
 
-COPY --from=builder /opt/app/target/*.jar enrollment-service.jar
+COPY --from=builder /opt/app/target/*.jar course-content-service.jar
 
-ENTRYPOINT ["java", "-jar", "/opt/app/enrollment-service.jar"]
+ENTRYPOINT ["java", "-jar", "/opt/app/course-content-service.jar"]
