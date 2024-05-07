@@ -36,7 +36,12 @@ public class ResponseEntityDto {
 
     protected void putToResults(Object data) {
         if (data != null) {
-            results.add(data);
+
+            if (data instanceof Collection<?>) {
+                results.addAll((Collection<?>) data);
+            } else {
+                results.add(data);
+            }
         }
     }
 
