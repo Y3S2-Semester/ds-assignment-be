@@ -4,12 +4,21 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'api-gateway/**'
+      - 'course-content-service/**'
+      - 'course-service/**'
+      - 'enrollment-service/**'
+      - 'notification-service/**'
+      - 'payment-service/**'
+      - 'user-service/**'
   workflow_dispatch:
 
 jobs:
   build_and_push_api_gateway:
     name: Build and Push API Gateway
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'api-gateway/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
@@ -29,6 +38,7 @@ jobs:
   build_and_push_course_content_service:
     name: Build and Push Course Content Service
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'course-content-service/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
@@ -48,6 +58,7 @@ jobs:
   build_and_push_course_service:
     name: Build and Push Course Service
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'course-service/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
@@ -67,6 +78,7 @@ jobs:
   build_and_push_enrollment_service:
     name: Build and Push Enrollment Service
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'enrollment-service/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
@@ -86,6 +98,7 @@ jobs:
   build_and_push_notification_service:
     name: Build and Push Notification Service
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'notification-service/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
@@ -105,6 +118,7 @@ jobs:
   build_and_push_payment_service:
     name: Build and Push Payment Service
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'payment-service/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
@@ -124,6 +138,7 @@ jobs:
   build_and_push_user_service:
     name: Build and Push User Service
     runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'user-service/') || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v3
       - uses: docker/login-action@v2
