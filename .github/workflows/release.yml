@@ -38,6 +38,6 @@ jobs:
       - name: Set image in Kubernetes deployment
         run: |
           kubectl set image deployment/user-service user-service=zulake/user-service:${{ github.sha }}
-      - name: Delete old pods to force redeployment
+      - name: Monitor rollout status
         run: |
-          kubectl delete pods -l app=user-service
+          kubectl rollout status deployment/user-service
