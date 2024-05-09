@@ -1,7 +1,6 @@
 package com.microservices.courseservice.core.service.cache;
 
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.courseservice.core.payload.fiegn.ResponseEntityDto;
 import com.microservices.courseservice.core.payload.fiegn.UserResponseDto;
 import com.microservices.courseservice.core.payload.fiegn.enums.Role;
@@ -10,61 +9,59 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.lang.reflect.Type;
 import java.util.*;
 
 @Component
 public class UserCache {
 
-    @Autowired
-    private Gson gson;
-
     @NonNull
     private final UserServiceClient userServiceClient;
 
-    private Map<String, UserResponseDto> userMap = new HashMap<>();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static Map<String, UserResponseDto> userMap = new HashMap<>();
+    private static List<UserResponseDto> userResponseDtos = new ArrayList<>();
 
+    @Autowired
     public UserCache(@NonNull UserServiceClient userServiceClient) {
         this.userServiceClient = userServiceClient;
     }
 
-    public List<UserResponseDto> saveCallbackDetails() {
-        ResponseEntityDto responseEntity = userServiceClient.getAllUserByOptionalRole(Role.INSTRUCTOR);
-        List<UserResponseDto> userResponseDtos = new ArrayList<>();
-
-        if (responseEntity != null && responseEntity.getStatus().equals("successful")) {
-            userResponseDtos.addAll((Collection<? extends UserResponseDto>) responseEntity.getResults());
-
-            for (UserResponseDto user : userResponseDtos) {
-                userMap.put(user.getId(), user);
-            }
-        } else {
-            System.out.println("Error: Unable to fetch user data.");
-        }
-
-        return userResponseDtos;
-    }
-
-
-
-    public UserResponseDto getUserByUserId(String userId) {
+    public UserResponseDto getUserResponseDto(String userId) {
         if (userMap.isEmpty()) {
-            return updateUserMapAndGetUser(userId);
-        } else {
-            if (userMap.containsKey(userId)) {
-                return userMap.get(userId);
+            ResponseEntityDto responseEntity = userServiceClient.getAllUserByOptionalRole(Role.INSTRUCTOR);
+
+
+            if (responseEntity != null && responseEntity.getStatus().equals("successful")) {
+                // Assuming responseEntity.getResults() returns a List<LinkedHashMap<String, Object>>
+                List<LinkedHashMap<String, Object>> results = (List<LinkedHashMap<String, Object>>) responseEntity.getResults();
+
+                for (LinkedHashMap<String, Object> result : results) {
+                    UserResponseDto user = new UserResponseDto();
+                    user.setId((String) result.get("id"));
+                    user.setName((String) result.get("name"));
+                    user.setEmail((String) result.get("email"));
+                    Object role = result.get("role");
+                    if (role.equals("INSTRUCTOR")) {
+                        user.setRole(Role.INSTRUCTOR);
+                    } else {
+                        user.setRole(Role.LEARNER);
+                    }
+                    userResponseDtos.add(user);
+                    userMap.put(user.getId(), user);
+                }
+                return userResponseDtos.stream()
+                        .anyMatch(user -> user.getId().equals(userId)) ? userMap.get(userId) : null;
             } else {
-                userMap = new HashMap<>();
-                return updateUserMapAndGetUser(userId);
+                throw new IllegalStateException("Error: Unable to fetch user data.");
+            }
+        } else {
+            if (userMap.get(userId) == null) {
+                userMap.clear();
+                getUserResponseDto(userId);
+            } else {
+                return userMap.get(userId);
             }
         }
-    }
-
-    public UserResponseDto updateUserMapAndGetUser(String userId) {
-        List<UserResponseDto> usersList = saveCallbackDetails();
-        for (UserResponseDto user : usersList) {
-            userMap.put(user.getId(), user);
-        }
-        return userMap.get(userId);
+      return null;
     }
 }

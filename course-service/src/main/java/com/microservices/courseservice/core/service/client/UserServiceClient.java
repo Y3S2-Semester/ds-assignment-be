@@ -1,7 +1,6 @@
 package com.microservices.courseservice.core.service.client;
 
 import com.microservices.courseservice.core.payload.fiegn.ResponseEntityDto;
-import com.microservices.courseservice.core.payload.fiegn.User;
 import com.microservices.courseservice.core.payload.fiegn.enums.Role;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;

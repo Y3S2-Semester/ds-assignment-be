@@ -1,6 +1,6 @@
 package com.microservices.courseservice.core.payload;
 
-import com.microservices.courseservice.core.payload.fiegn.User;
+
 import com.microservices.courseservice.core.payload.fiegn.UserResponseDto;
 import com.microservices.courseservice.core.type.Category;
 import com.microservices.courseservice.core.type.Status;

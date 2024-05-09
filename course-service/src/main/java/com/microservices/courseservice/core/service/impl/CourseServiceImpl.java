@@ -4,7 +4,6 @@ import com.microservices.courseservice.core.model.Course;
 import com.microservices.courseservice.core.payload.CourseRequestDto;
 import com.microservices.courseservice.core.payload.CourseResponseDto;
 import com.microservices.courseservice.core.payload.common.ResponseEntityDto;
-import com.microservices.courseservice.core.payload.fiegn.User;
 import com.microservices.courseservice.core.payload.fiegn.UserResponseDto;
 import com.microservices.courseservice.core.repository.CourseRepository;
 import com.microservices.courseservice.core.service.CourseService;
@@ -39,8 +38,8 @@ public class CourseServiceImpl implements CourseService {
     public ResponseEntityDto addCourse(CourseRequestDto courseRequestDto) {
         try {
             log.info("CourseServiceImpl.addCourse() has been invoked");
+            UserResponseDto userByUserId = userCache.getUserResponseDto(courseRequestDto.getInstructor());
             Course savedCourse = courseRepository.save(courseTransformer.reverseTransform(courseRequestDto));
-            UserResponseDto userByUserId = userCache.getUserByUserId(savedCourse.getInstructorId());
             CourseResponseDto transformCourseResponseDto = courseTransformer.transformCourseDto(savedCourse, userByUserId);
             return new ResponseEntityDto(false, transformCourseResponseDto);
         } catch (Exception ex) {
@@ -54,7 +53,7 @@ public class CourseServiceImpl implements CourseService {
         log.info("CourseServiceImpl.getCourseByCourseId() has been invoked");
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
         if (optionalCourse.isPresent()) {
-            UserResponseDto userByUserId = userCache.getUserByUserId(optionalCourse.map(Course::getInstructorId).orElse(null));
+            UserResponseDto userByUserId = userCache.getUserResponseDto(optionalCourse.get().getInstructorId());
             CourseResponseDto courseResponseDto = courseTransformer.transformCourseDto(optionalCourse.get(), userByUserId);
             return new ResponseEntityDto(false, courseResponseDto);
         } else {
@@ -68,7 +67,7 @@ public class CourseServiceImpl implements CourseService {
         log.info("CourseServiceImpl.getCourseByCourseName() has been invoked");
         Optional<Course> optionalCourse = courseRepository.findByCourseName(courseName);
         if (optionalCourse.isPresent()) {
-            UserResponseDto userByUserId = userCache.getUserByUserId(optionalCourse.map(Course::getInstructorId).orElse(null));
+            UserResponseDto userByUserId = userCache.getUserResponseDto(optionalCourse.map(Course::getInstructorId).orElse(null));
             CourseResponseDto courseResponseDto = courseTransformer.transformCourseDto(optionalCourse.get(), userByUserId);
             return new ResponseEntityDto(false, courseResponseDto);
         } else {
@@ -83,7 +82,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
         Iterable<Course> courses = courseRepository.findAll();
         for (Course course : courses) {
-            UserResponseDto userByUserId = userCache.getUserByUserId(course.getInstructorId());
+            UserResponseDto userByUserId = userCache.getUserResponseDto(course.getInstructorId());
             courseResponseDtos.add(courseTransformer.transformCourseDto(course, userByUserId));
         }
         return new ResponseEntityDto(false, courseResponseDtos);
@@ -95,7 +94,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
         Iterable<Course> courses = courseRepository.findByInstructorId(instructorId);
         for (Course course : courses) {
-            UserResponseDto userByUserId = userCache.getUserByUserId(course.getInstructorId());
+            UserResponseDto userByUserId = userCache.getUserResponseDto(course.getInstructorId());
             courseResponseDtos.add(courseTransformer.transformCourseDto(course, userByUserId));
         }
         return new ResponseEntityDto(false, courseResponseDtos);
