@@ -1,0 +1,43 @@
+name: Build and Push Docker Images to DockerHub
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build_and_push_user_service:
+    name: Build and Push User Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Docker BuildKit
+        run: |
+          echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
+          echo "BUILDX_NO_DEFAULT_LOAD=true" >> $GITHUB_ENV
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v3
+        with:
+          context: ./user-service
+          push: true
+          tags: |
+            zulake/user-service:${{ github.sha }}
+            zulake/user-service:latest
+          cache-from: type=registry,ref=zulake/user-service:latest
+          cache-to: type=inline
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+      - name: Update kubeconfig
+        run: |
+          aws eks update-kubeconfig --name ds-cluster
+      - name: Set image in Kubernetes deployment
+        run: |
+          kubectl set image deployment/user-service user-service=zulake/user-service:${{ github.sha }}
+      - name: Monitor rollout status
+        run: |
+          kubectl rollout status deployment/user-service
