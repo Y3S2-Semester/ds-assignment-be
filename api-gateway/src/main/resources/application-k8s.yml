@@ -1,0 +1,6 @@
+# application-k8s.yml
+address:
+  base:
+    user-service: http://user-service:80
+    course-service: http://course-service:80
+    content-service: http://content-service:80

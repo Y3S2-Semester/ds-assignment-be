@@ -2,21 +2,10 @@ server:
   port: 8765
 
 spring:
+  profiles:
+    active: local
   application:
     name: api-gateway
 
 jwt:
   secret: 413F4428472B4B6250655368566D5970337336763979244226452948404D6351
-
-#address:
-#  base:
-#    user-service: http://localhost:8000
-#    course-service: http://localhost:8100
-#    content-service: http://localhost:8200
-
-address:
-  base:
-    user-service: http://user-service:80
-    course-service: http://course-service:80
-    content-service: http://content-service:80
-
