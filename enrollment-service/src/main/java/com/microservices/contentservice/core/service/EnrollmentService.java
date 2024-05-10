@@ -10,4 +10,6 @@ public interface EnrollmentService {
     ResponseEntityDto removeEnrollmentFromCourse(String enrollmentId);
 
     ResponseEntityDto getEnrollmentSummary(String enrollmentId);
+
+    ResponseEntityDto getEnrollmentsByUserId(String userId);
 }
