@@ -3,13 +3,14 @@ package com.microservices.courseservice.core.transformer;
 import com.microservices.courseservice.core.model.Course;
 import com.microservices.courseservice.core.payload.CourseRequestDto;
 import com.microservices.courseservice.core.payload.CourseResponseDto;
-import com.microservices.courseservice.core.payload.InstructorResponseDto;
+
+import com.microservices.courseservice.core.payload.fiegn.UserResponseDto;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CourseTransformer {
 
-    public CourseResponseDto transformCourseDto(Course course, InstructorResponseDto instructorResponseDto) {
+    public CourseResponseDto transformCourseDto(Course course, UserResponseDto instructorResponseDto) {
         CourseResponseDto courseResponseDto = new CourseResponseDto();
         courseResponseDto.setId(course.getCourseId() != null ? course.getCourseId() : null);
         courseResponseDto.setCourseName(course.getCourseName());
@@ -29,7 +30,7 @@ public class CourseTransformer {
         course.setPrice(courseRequestDto.getPrice());
         course.setCourseDescription(courseRequestDto.getCourseDescription());
         course.setStatus(courseRequestDto.getStatus());
-        course.setInstructorId(course.getInstructorId());
+        course.setInstructorId(courseRequestDto.getInstructor());
         course.setActive(courseRequestDto.isActive());
         return course;
     }
