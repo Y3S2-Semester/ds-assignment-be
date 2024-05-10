@@ -40,4 +40,10 @@ public class EnrollmentController {
         ResponseEntityDto response = enrollmentService.getEnrollmentSummary(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    @GetMapping("/of/{userId}")
+    public ResponseEntity<ResponseEntityDto> getEnrollmentsByUserId(@PathVariable String userId) {
+        ResponseEntityDto response = enrollmentService.getEnrollmentsByUserId(userId);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 }

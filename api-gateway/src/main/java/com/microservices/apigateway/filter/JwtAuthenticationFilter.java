@@ -73,8 +73,8 @@ public class JwtAuthenticationFilter implements GatewayFilter {
                 throw new UnAuthorizedException("Token Expired");
             }
         } catch (Exception e) {
-            logger.severe("invalid access...!");
-            throw new UnAuthorizedException("un authorized access to application");
+            logger.severe(e.getMessage());
+            throw new UnAuthorizedException(e.getMessage());
         }
     }
 }
