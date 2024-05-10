@@ -66,7 +66,7 @@ public class JwtAuthenticationFilter implements GatewayFilter {
         try {
             if (Boolean.FALSE.equals(jwtUtil.isTokenExpired(authHeader))) {
                 String username = jwtUtil.extractUsername(authHeader);
-                exchange.getRequest().mutate().header("username", username);
+                exchange.getRequest().mutate().header("userId", username);
                 exchange.getRequest().mutate().header("role", jwtUtil.extractRole(authHeader));
             } else {
                 logger.severe("Token Expired");
