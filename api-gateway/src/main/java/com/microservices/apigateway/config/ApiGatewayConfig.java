@@ -27,9 +27,6 @@ public class ApiGatewayConfig {
 
     @Bean
     public RouteLocator gatewayRouter(RouteLocatorBuilder builder) {
-        System.out.println(userServiceAddress);
-        System.out.println(courseServiceAddress);
-        System.out.println(contentServiceAddress);
         String replacement = "/${segment}";
         return builder.routes()
                 .route(p -> p
