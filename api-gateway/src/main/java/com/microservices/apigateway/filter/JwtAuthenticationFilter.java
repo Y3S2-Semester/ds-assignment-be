@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter implements GatewayFilter {
 
     private final List<String> publicUrls = List.of(
             "/api/v1/auth/**",
-            "/api/v1/health",
+            "/system/health",
             "/api/v1/course"
     );
 
