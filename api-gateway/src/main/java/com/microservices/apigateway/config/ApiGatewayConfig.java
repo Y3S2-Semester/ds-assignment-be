@@ -22,6 +22,15 @@ public class ApiGatewayConfig {
     @Value("${address.base.content-service}")
     private String contentServiceAddress;
 
+    @Value("${address.base.enrollment-service}")
+    private String enrollmentServiceAddress;
+
+    @Value("${address.base.notification-service}")
+    private String notificationServiceAddress;
+
+    @Value("${address.base.payment-service}")
+    private String paymentServiceAddress;
+
     @NotNull
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -44,6 +53,21 @@ public class ApiGatewayConfig {
                         .filters(f -> f.rewritePath("/CONTENT/(?<segment>.*)", replacement)
                                 .filter(jwtAuthenticationFilter))
                         .uri(contentServiceAddress))
+                .route(p -> p
+                        .path("/ENROLLMENT/**")
+                        .filters(f -> f.rewritePath("/ENROLLMENT/(?<segment>.*)", replacement)
+                                .filter(jwtAuthenticationFilter))
+                        .uri(enrollmentServiceAddress))
+                .route(p -> p
+                        .path("/NOTIFICATION/**")
+                        .filters(f -> f.rewritePath("/NOTIFICATION/(?<segment>.*)", replacement)
+                                .filter(jwtAuthenticationFilter))
+                        .uri(notificationServiceAddress))
+                .route(p -> p
+                        .path("/PAYMENT/**")
+                        .filters(f -> f.rewritePath("/PAYMENT/(?<segment>.*)", replacement)
+                                .filter(jwtAuthenticationFilter))
+                        .uri(paymentServiceAddress))
                 .build();
     }
 }
