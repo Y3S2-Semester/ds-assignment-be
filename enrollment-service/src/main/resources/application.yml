@@ -9,3 +9,9 @@ spring:
   data:
     mongodb:
       uri: mongodb+srv://admin:2lgiIC4opKrZ2jVR@cluster0.vzb0mdl.mongodb.net/enrollment-service
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
