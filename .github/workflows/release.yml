@@ -1,4 +1,4 @@
-name: Build and Push Docker Images to DockerHub
+name: Build, Push Docker Images, and Update K8s Configs
 
 on:
   push:
@@ -28,3 +28,13 @@ jobs:
             zulake/${{ matrix.service }}:latest
           cache-from: type=registry,ref=zulake/${{ matrix.service }}:latest
           cache-to: type=inline
+      - name: Update Kubernetes Deployment Image Tag
+        run: |
+          sed -i 's|image: zulake/${{ matrix.service }}:.*|image: zulake/${{ matrix.service }}:${{ github.sha }}|' ./kube-config/service/${{ matrix.service }}/deployment.yml
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+          git add ./kube-config/service/${{ matrix.service }}/deployment.yml
+          git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }}"
+          git push
