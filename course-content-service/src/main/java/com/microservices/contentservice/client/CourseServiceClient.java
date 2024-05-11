@@ -13,6 +13,6 @@ public interface CourseServiceClient {
     ResponseEntityDto getCourseById(@PathVariable("id") String id);
 
     @GetMapping(value = "/api/v1/course/instructor", produces = "application/json")
-    ResponseEntityDto getCourseByInstructorId(@RequestParam("instructorId") String instructorId);
+    ResponseEntityDto getCourseByInstructorId(@RequestParam(value = "instructorId", required = false) String instructorId);
 
 }

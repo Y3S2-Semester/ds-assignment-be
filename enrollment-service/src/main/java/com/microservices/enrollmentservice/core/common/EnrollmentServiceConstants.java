@@ -8,5 +8,6 @@ public class EnrollmentServiceConstants {
         String COURSE_NOT_FOUND  = "api.error.course.not.found";
         String FAILED_TO_PASS_COURSE_DATA = "api.error.course.data.convert";
         String USER_NOT_FOUND = "api.error.user.not-found";
+        String USER_NOT_ENROLLED_TO_MODIFY = "api.error.user.not-enrolled-to-modify";
     }
 }

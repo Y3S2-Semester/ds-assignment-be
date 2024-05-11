@@ -11,8 +11,6 @@ import java.time.LocalDate;
 @Getter
 public class EnrollmentRequestDto {
     @NonNull
-    private String userId;
-    @NonNull
     private String courseId;
     private LocalDate enrollmentDate = LocalDate.now();
     private CompletionStatus completionStatus = CompletionStatus.IN_PROGRESS;

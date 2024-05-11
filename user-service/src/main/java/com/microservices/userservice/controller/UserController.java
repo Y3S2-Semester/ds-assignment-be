@@ -1,6 +1,5 @@
 package com.microservices.userservice.controller;
 
-import com.microservices.userservice.core.model.User;
 import com.microservices.userservice.core.payload.UserResponseDto;
 import com.microservices.userservice.core.payload.common.ResponseEntityDto;
 import com.microservices.userservice.core.service.UserService;
@@ -37,7 +36,7 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntityDto getAllUserByOptionalRole(@RequestParam Role role) {
+    public ResponseEntityDto getAllUserByOptionalRole(@RequestParam(required = false) Role role) {
         return userService.getAllUserByOptionalRole(role);
     }
 }

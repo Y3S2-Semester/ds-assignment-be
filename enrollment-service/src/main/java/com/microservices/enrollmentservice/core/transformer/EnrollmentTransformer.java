@@ -21,10 +21,10 @@ public class EnrollmentTransformer {
         return enrollmentResponseDto;
     }
 
-    public Enrollment reverseTransform(EnrollmentRequestDto enrollmentRequestDto) {
+    public Enrollment reverseTransform(EnrollmentRequestDto enrollmentRequestDto, String userId) {
         Enrollment enrollment = new Enrollment();
         enrollment.setCourseId(enrollmentRequestDto.getCourseId());
-        enrollment.setUserId(enrollmentRequestDto.getUserId());
+        enrollment.setUserId(userId);
         enrollment.setEnrollmentDate(enrollmentRequestDto.getEnrollmentDate());
         enrollment.setCompletionStatus(enrollmentRequestDto.getCompletionStatus());
         enrollment.setActive(enrollmentRequestDto.isActive());

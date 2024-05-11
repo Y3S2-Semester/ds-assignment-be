@@ -19,10 +19,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ import static com.microservices.enrollmentservice.core.common.EnrollmentServiceC
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.COURSE_NOT_FOUND;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.ENROLLMENT_NOT_FOUND;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.FAILED_TO_PASS_COURSE_DATA;
+import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.USER_NOT_ENROLLED_TO_MODIFY;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.USER_NOT_FOUND;
 
 @Slf4j
@@ -55,19 +58,28 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     @NonNull
     private final UserServiceClient userServiceClient;
 
+    private String getCurrentUserId() {
+        return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
 
     @Override
     public ResponseEntityDto addEnrollmentToCourse(EnrollmentRequestDto enrollmentRequestDto) {
+        String currentUserId = getCurrentUserId();
         CourseResponseDto course = getCourse(courseServiceClient.getCourseById(enrollmentRequestDto.getCourseId()));
-        UserResponseDto user = getUser(userServiceClient.getUserById(enrollmentRequestDto.getUserId()));
-        Enrollment savedEnrollment = enrollmentRepository.save(enrollmentTransformer.reverseTransform(enrollmentRequestDto));
+        UserResponseDto user = getUser(userServiceClient.getUserById(currentUserId));
+        Enrollment savedEnrollment = enrollmentRepository.save(enrollmentTransformer.reverseTransform(enrollmentRequestDto, currentUserId));
         EnrollmentResponseDto enrollmentResponseDto = enrollmentTransformer.transformEnrollmentDto(savedEnrollment, course, user);
         return new ResponseEntityDto(false, enrollmentResponseDto);
     }
 
     @Override
     public ResponseEntityDto removeEnrollmentFromCourse(String enrollmentId) {
+        String currentUserId = getCurrentUserId();
         Enrollment enrollment = getEnrollment(enrollmentId);
+        if (!Objects.equals(enrollment.getUserId(), currentUserId)) {
+            throw new ModuleException(messageSource.getMessage(USER_NOT_ENROLLED_TO_MODIFY, null, Locale.ENGLISH));
+        }
+
         CourseResponseDto course = getCourse(courseServiceClient.getCourseById(enrollment.getCourseId()));
         UserResponseDto user = getUser(userServiceClient.getUserById(enrollment.getUserId()));
 
@@ -99,7 +111,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     private CourseResponseDto getCourse(ResponseEntity<ResponseEntityDto> courseResponse) {
-        if (courseResponse.getBody() != null && courseResponse.getBody().getResults() == null) {
+        if (courseResponse.getBody() == null || courseResponse.getBody().getResults() == null) {
             throw new EntityNotFoundException(messageSource.getMessage(COURSE_NOT_FOUND, null, Locale.ENGLISH));
         }
 

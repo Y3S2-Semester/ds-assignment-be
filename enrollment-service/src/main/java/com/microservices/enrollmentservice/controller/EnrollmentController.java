@@ -7,6 +7,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,12 +25,14 @@ public class EnrollmentController {
     private final EnrollmentService enrollmentService;
 
     @PostMapping()
+    @PreAuthorize("hasAuthority('LEARNER')")
     public ResponseEntity<ResponseEntityDto> enrollToCourse(@RequestBody EnrollmentRequestDto enrollmentRequestDto) {
         ResponseEntityDto response = enrollmentService.addEnrollmentToCourse(enrollmentRequestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
+    @PreAuthorize("hasAuthority('LEARNER')")
     public ResponseEntity<ResponseEntityDto> unEnrollFromCourse(@PathVariable String id) {
         ResponseEntityDto response = enrollmentService.removeEnrollmentFromCourse(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -42,6 +45,7 @@ public class EnrollmentController {
     }
 
     @GetMapping("/of/{userId}")
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseEntityDto> getEnrollmentsByUserId(@PathVariable String userId) {
         ResponseEntityDto response = enrollmentService.getEnrollmentsByUserId(userId);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -8,7 +8,7 @@ spring:
     name: user-service
   data:
     mongodb:
-      uri: mongodb+srv://admin:zlwOj8Aqje5NxifT@cluster0.kdvjrko.mongodb.net/cluster0
+      uri: mongodb+srv://admin:2lgiIC4opKrZ2jVR@cluster0.vzb0mdl.mongodb.net/user-service
 
 jwt:
   signing:
