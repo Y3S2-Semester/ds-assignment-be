@@ -1,5 +1,6 @@
 package com.microservices.courseservice.core.service.impl;
 
+import com.microservices.courseservice.core.exception.ModuleException;
 import com.microservices.courseservice.core.model.Course;
 import com.microservices.courseservice.core.payload.CourseRequestDto;
 import com.microservices.courseservice.core.payload.CourseResponseDto;
@@ -14,7 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +39,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    @Transactional
     public ResponseEntityDto addCourse(CourseRequestDto courseRequestDto) {
         try {
             log.info("CourseServiceImpl.addCourse() has been invoked");
@@ -54,6 +53,24 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    public ResponseEntityDto updateCourse(String courseId, CourseRequestDto courseRequestDto) {
+        Optional<Course> optionalCourse = courseRepository.findById(courseId);
+        if (optionalCourse.isPresent()) {
+            UserResponseDto userByUserId = userCache.getUserResponseDto(getCurrentUserId());
+
+            Course course = courseTransformer.reverseTransform(courseRequestDto, getCurrentUserId());
+            course.setCourseId(optionalCourse.get().getCourseId());
+            Course savedCourse = courseRepository.save(course);
+
+            CourseResponseDto transformCourseResponseDto = courseTransformer.transformCourseDto(savedCourse, userByUserId);
+            return new ResponseEntityDto(false, transformCourseResponseDto);
+        } else {
+            log.error("Course with ID {} not found", courseId);
+            throw new ModuleException("Course not found");
+        }
+    }
+
+    @Override
     public ResponseEntityDto getCourseByCourseId(String courseId) {
         log.info("CourseServiceImpl.getCourseByCourseId() has been invoked");
         Optional<Course> optionalCourse = courseRepository.findById(courseId);
@@ -62,8 +79,8 @@ public class CourseServiceImpl implements CourseService {
             CourseResponseDto courseResponseDto = courseTransformer.transformCourseDto(optionalCourse.get(), userByUserId);
             return new ResponseEntityDto(false, courseResponseDto);
         } else {
-            log.warn("Course with ID {} not found", courseId);
-            return new ResponseEntityDto(true, "Course not found");
+            log.error("Course with ID {} not found", courseId);
+            throw new ModuleException("Course not found");
         }
     }
 

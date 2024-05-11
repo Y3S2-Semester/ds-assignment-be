@@ -45,9 +45,8 @@ public class EnrollmentController {
     }
 
     @GetMapping("/of/{userId}")
-    @PreAuthorize("hasAnyAuthority('INSTRUCTOR', 'ADMIN')")
     public ResponseEntity<ResponseEntityDto> getEnrollmentsByUserId(@PathVariable String userId) {
-        ResponseEntityDto response = enrollmentService.getEnrollmentsByUserId(userId);
+        ResponseEntityDto response = enrollmentService.getEnrolledCourseIdsByUserId(userId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

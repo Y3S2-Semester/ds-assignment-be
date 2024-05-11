@@ -2,6 +2,7 @@ package com.microservices.courseservice.core.service.cache;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microservices.courseservice.core.exception.ModuleException;
 import com.microservices.courseservice.core.payload.fiegn.ResponseEntityDto;
 import com.microservices.courseservice.core.payload.fiegn.UserResponseDto;
 import com.microservices.courseservice.core.payload.fiegn.enums.Role;
@@ -38,10 +39,10 @@ public class UserCache {
                 for (Object userResponse: responseEntity.getResults()) {
                     UserResponseDto user = null;
                     try {
-                        user = objectMapper.convertValue(objectMapper.writeValueAsString(userResponse), UserResponseDto.class);
+                        user = objectMapper.readValue(objectMapper.writeValueAsString(userResponse), UserResponseDto.class);
                         userResponseDtos.add(user);
                     } catch (JsonProcessingException e) {
-                        throw new RuntimeException(e);
+                        throw new ModuleException(e.getMessage());
                     }
                     userMap.put(user.getId(), user);
                 }

@@ -7,6 +7,8 @@ public interface CourseService {
 
     ResponseEntityDto addCourse(CourseRequestDto courseRequestDto);
 
+    ResponseEntityDto updateCourse(String courseId, CourseRequestDto courseRequestDto);
+
     ResponseEntityDto getCourseByCourseId(String courseId);
 
     ResponseEntityDto getCourseByCourseName(String courseName);

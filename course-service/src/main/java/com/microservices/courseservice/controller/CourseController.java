@@ -35,10 +35,10 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     @PreAuthorize("hasAnyAuthority('ADMIN', 'INSTRUCTOR')")
-    public ResponseEntity<ResponseEntityDto> updateCourse(@Valid @RequestBody CourseRequestDto courseRequestDto) {
-        ResponseEntityDto response = courseService.addCourse(courseRequestDto);
+    public ResponseEntity<ResponseEntityDto> updateCourse(@Valid @RequestBody CourseRequestDto courseRequestDto, @PathVariable String id) {
+        ResponseEntityDto response = courseService.updateCourse(id, courseRequestDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

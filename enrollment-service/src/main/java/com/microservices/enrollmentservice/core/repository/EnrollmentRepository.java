@@ -7,5 +7,5 @@ import java.util.List;
 
 public interface EnrollmentRepository extends MongoRepository <Enrollment, String> {
 
-    List<Enrollment> findAllByUserIdAndActiveTrue(String userId);
+    List<Enrollment> findAllByUserIdAndIsActiveTrue(String userId);
 }

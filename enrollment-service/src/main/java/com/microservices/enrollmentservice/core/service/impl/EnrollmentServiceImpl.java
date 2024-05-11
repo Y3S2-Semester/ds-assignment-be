@@ -141,8 +141,8 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     }
 
     @Override
-    public ResponseEntityDto getEnrollmentsByUserId(String userId) {
-        List<Enrollment> enrollments = enrollmentRepository.findAllByUserIdAndActiveTrue(userId);
+    public ResponseEntityDto getEnrolledCourseIdsByUserId(String userId) {
+        List<Enrollment> enrollments = enrollmentRepository.findAllByUserIdAndIsActiveTrue(userId);
         return new ResponseEntityDto(false, enrollments.stream().map(Enrollment::getCourseId).collect(Collectors.toSet()));
     }
 }
