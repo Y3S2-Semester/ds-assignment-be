@@ -1,6 +1,9 @@
 server:
   port: 8100
+
 spring:
+  profiles:
+    active: local
   application:
     name: course-service
   data:
