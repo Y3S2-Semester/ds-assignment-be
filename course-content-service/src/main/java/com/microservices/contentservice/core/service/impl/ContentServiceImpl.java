@@ -163,8 +163,16 @@ public class ContentServiceImpl implements ContentService {
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
         } else {
-            CourseResponseDto courseResponse = (CourseResponseDto) response.getResults().get(0);
-            if (!Objects.equals(courseResponse.getInstructor().getId(), userId)) {
+            Object courseResponse = response.getResults().get(0);
+            CourseResponseDto course = null;
+            try {
+                String responseJson = objectMapper.writeValueAsString(courseResponse);
+                course = objectMapper.readValue(responseJson, CourseResponseDto.class);
+            } catch (JsonProcessingException e) {
+                log.error("courseOwnerShipValidation: Error occurred: {}", e.getMessage());
+                throw new ModuleException(e.getMessage());
+            }
+            if (!Objects.equals(course.getInstructor().getId(), userId)) {
                 throw new ModuleException("You dont have permission to perform this action");
             }
         }

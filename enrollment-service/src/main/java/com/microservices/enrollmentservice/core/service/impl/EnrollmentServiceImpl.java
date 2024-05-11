@@ -66,7 +66,7 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     public ResponseEntityDto addEnrollmentToCourse(EnrollmentRequestDto enrollmentRequestDto) {
         String currentUserId = getCurrentUserId();
         CourseResponseDto course = getCourse(courseServiceClient.getCourseById(enrollmentRequestDto.getCourseId()));
-        UserResponseDto user = getUser(userServiceClient.getUserById(currentUserId));
+        UserResponseDto user = (UserResponseDto) SecurityContextHolder.getContext().getAuthentication().getCredentials();
         Enrollment savedEnrollment = enrollmentRepository.save(enrollmentTransformer.reverseTransform(enrollmentRequestDto, currentUserId));
         EnrollmentResponseDto enrollmentResponseDto = enrollmentTransformer.transformEnrollmentDto(savedEnrollment, course, user);
         return new ResponseEntityDto(false, enrollmentResponseDto);

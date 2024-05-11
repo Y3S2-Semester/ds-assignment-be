@@ -114,7 +114,7 @@ public class CourseServiceImpl implements CourseService {
     public ResponseEntityDto getCoursesByInstructor(String instructorId) {
         log.info("CourseServiceImpl.getCoursesByInstructor() has been invoked");
         List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
-        Iterable<Course> courses = courseRepository.findByInstructorId(instructorId);
+        List<Course> courses = courseRepository.findByInstructorId(instructorId);
         for (Course course : courses) {
             UserResponseDto userByUserId = userCache.getUserResponseDto(course.getInstructorId());
             courseResponseDtos.add(courseTransformer.transformCourseDto(course, userByUserId));
