@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "${feign.course-service.name}", url = "${feign.course-service.url}")
+@FeignClient(name = "course-service", url = "${feign.url.course}")
 public interface CourseServiceClient {
 
     @GetMapping(value = "/api/v1/course/{id}", produces = "application/json")

@@ -1,6 +1,9 @@
 server:
   port: 8300
+
 spring:
+  profiles:
+    active: local
   application:
     name: enrollment-service
   data:

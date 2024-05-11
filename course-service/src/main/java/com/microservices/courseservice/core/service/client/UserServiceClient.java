@@ -10,9 +10,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@FeignClient(name = "user-service", url = "${user-service:http://localhost}:8000")
+//@FeignClient(name = "user-service", url = "${user-service:http://localhost}:8000")
+//@FeignClient(name = "user-service", url = "http://user-service:80")
+@FeignClient(name = "user-service", url = "${feign.url.user}")
 public interface UserServiceClient {
 
     @GetMapping("/api/v1/user")
-    public ResponseEntityDto getAllUserByOptionalRole(@RequestParam("role") Role role);
+    ResponseEntityDto getAllUserByOptionalRole(@RequestParam("role") Role role);
 }
