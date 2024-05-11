@@ -3,77 +3,61 @@ package com.microservices.apigateway.service.impl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microservices.apigateway.exception.UnAuthorizedException;
 import com.microservices.apigateway.service.UserService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
+import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserServiceImpl implements UserService {
     @NonNull
-    private final WebClient webClient;
+    private final RestTemplate restTemplate;
     @NonNull
     private final ObjectMapper objectMapper;
+    @Value("${address.base.user-service}")
+    private String userServiceAddress;
 
+    @SneakyThrows
     @Override
-    public Flux<JsonNode> getCurrentUser(String token) {
+    public JsonNode getCurrentUser(String token) {
         try {
             log.info("getCurrentUser: Execution started.");
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set(HttpHeaders.AUTHORIZATION, token);
+            HttpEntity<String> requestEntity = new HttpEntity<>(headers);
 
-            Scheduler blockingCompatibleScheduler = Schedulers.boundedElastic();
-            Mono<Object> toBlock = webClient.post()
-                    .uri("/api/v1/user/me")
-                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                    .header(HttpHeaders.AUTHORIZATION, token)
-                    .retrieve()
-                    .bodyToMono(Object.class);
+            ResponseEntity<Object> responseEntity = restTemplate.exchange(
+                    userServiceAddress + "/api/v1/user/me",
+                    HttpMethod.GET,
+                    requestEntity,
+                    Object.class
+            );
 
-            Mono<Object> wrapper = Mono.fromCallable(toBlock::block)
-                    .subscribeOn(blockingCompatibleScheduler);
-
-            return getMeInfo(token);
-//        Object response = Mono.fromCallable(() ->
-//                webClient.post()
-//                        .uri("/api/v1/user/me")
-//                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-//                        .header(HttpHeaders.AUTHORIZATION, token)
-//                        .retrieve()
-//                        .toEntity(String.class)
-//                        .block()
-//        ).subscribeOn(Schedulers.boundedElastic()).block();
-
-
-//            return objectMapper.readTree(objectMapper.writeValueAsString(wrapper));
+            if (responseEntity.getStatusCode() == HttpStatus.OK) {
+                Object user = responseEntity.getBody();
+                log.info("getCurrentUser: Execution Completed");
+                return getJson(user);
+            } else {
+                throw new UnAuthorizedException(getJson(responseEntity.getBody()).get("results").get(0).get("message").asText());
+            }
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            log.error("getCurrentUser: Error occurred: {}", e.getMessage());
+            throw new UnAuthorizedException(e.getMessage());
         }
-    }
-
-    public Flux<JsonNode> getMeInfo(String token) {
-        return getMe(token)
-                .flatMap(user -> {
-                    JsonNode currentUser = getJson(user);
-                    return Flux.just(currentUser);
-                });
-    }
-
-    private Flux<Object> getMe(String token) {
-        return webClient.get()
-                .uri("/api/v1/user/me")
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .retrieve()
-                .bodyToFlux(Object.class);
     }
 
     JsonNode getJson(Object user) {

@@ -1,5 +1,6 @@
 package com.microservices.apigateway.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.microservices.apigateway.exception.UnAuthorizedException;
 import com.microservices.apigateway.service.UserService;
 import lombok.NonNull;
@@ -55,26 +56,16 @@ public class AuthenticationFilter implements GatewayFilter {
 
             String authHeader = Objects.requireNonNull(exchange.getRequest().getHeaders().get(HttpHeaders.AUTHORIZATION)).get(0);
             if (authHeader != null && authHeader.startsWith("Bearer ")) {
-                userService.getCurrentUser(authHeader)
-                        .subscribe(
-                                currentUser -> {
-                                    String username = currentUser.get("email").asText();
-                                    String userId = currentUser.get("id").asText();
-                                    String role = currentUser.get("role").asText();
+                JsonNode currentUser = userService.getCurrentUser(authHeader);
+                String username = currentUser.get("email").asText();
+                String userId = currentUser.get("id").asText();
+                String role = currentUser.get("role").asText();
 
-                                    exchange.getRequest().mutate().header("userId", userId);
-                                    exchange.getRequest().mutate().header("username", username);
-                                    exchange.getRequest().mutate().header("role", role);
+                exchange.getRequest().mutate().header("userId", userId);
+                exchange.getRequest().mutate().header("username", username);
+                exchange.getRequest().mutate().header("role", role);
 
-                                    log.info("validateRequestWithToken: Execution Completed");
-                                },
-                                error -> {
-                                    log.warn("Error occurred: " + error.getMessage());
-                                },
-                                () -> {
-                                    log.warn("Processing completed");
-                                }
-                        );
+                log.info("validateRequestWithToken: Execution Completed");
                 return exchange;
             } else {
                 throw new UnAuthorizedException("No Auth header found");
