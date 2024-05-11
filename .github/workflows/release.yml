@@ -1,10 +1,7 @@
 name: Build, Push Docker Images, and Update Kubernetes Configurations
 
 on:
-  push:
-    branches:
-      - main
-      - test/k8s-deployment
+  workflow_dispatch:
 
 jobs:
   build_push_and_update_k8s:
