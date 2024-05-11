@@ -1,7 +1,9 @@
 name: Build and Push Docker Images to DockerHub
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
   build_and_push_api_gateway:
