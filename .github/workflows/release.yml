@@ -34,15 +34,32 @@ jobs:
           cache-from: type=registry,ref=zulake/${{ matrix.service }}:latest
           cache-to: type=inline
 
-      - name: Update Kubernetes Deployment Image Tag
+      - name: Update kube config
+        env:
+          ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
+          git clone https://github.com/Y3S2-Semester/kube-config.git
+          cd kube-config
+          
           service="${{ matrix.service }}"
-          sed -i "s|image: zulake/$service:.*|image: zulake/$service:${{ github.sha }}|" ./kube-config/services/$service/deployment.yml
+          sed -i "s|image: zulake/$service:.*|image: zulake/$service:${{ github.sha }}|" services/$service/deployment.yml
+          
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git config --global user.name "github-actions[bot]"
+          
+          git config pull.ff only
+          git add . && git commit -m "Synced $service kube config" || echo "No changes to commit"
+          
+          # Set remote with access token
+          git remote set-url origin https://github.com/Y3S2-Semester/kube-config.git
+          git remote set-url origin https://$ACCESS_TOKEN@github.com/Y3S2-Semester/kube-config.git
+          
+          n=0
+          until [ "$n" -ge 3 ]
+          do
+            git pull --rebase && git push && break  # pushing to the default branch
+            n=$((n+1))
+            sleep 15
+          done
 
-      - name: Commit and Push Changes to K8s Config Repo
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
-          git add ./kube-config/services/${{ matrix.service }}/deployment.yml
-          git commit -m "Update image tag for $service to ${{ github.sha }}"
-          git push origin HEAD:${{ github.ref }}
+        shell: bash
