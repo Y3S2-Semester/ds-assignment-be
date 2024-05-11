@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,14 +31,14 @@ public class ProgressController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/course")
+    @GetMapping
     @PreAuthorize("hasAnyAuthority('ADMIN', 'INSTRUCTOR')")
     public ResponseEntity<ResponseEntityDto> getOverallProgress(@RequestParam String courseId) {
         ResponseEntityDto response = progressService.getOverallProgress(courseId);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PatchMapping
+    @PostMapping
     @PreAuthorize("hasAnyAuthority('LEARNER')")
     public ResponseEntity<ResponseEntityDto> addProgress(@RequestBody ProgressCreateDto progressCreateDto) {
         ResponseEntityDto response = progressService.addProgress(progressCreateDto);

@@ -3,6 +3,7 @@ package com.microservices.userservice.core.service.impl;
 import com.microservices.userservice.core.exception.ModuleException;
 import com.microservices.userservice.core.payload.SignUpRequest;
 import com.microservices.userservice.core.model.User;
+import com.microservices.userservice.core.payload.UserResponseDto;
 import com.microservices.userservice.core.payload.common.ResponseEntityDto;
 import com.microservices.userservice.core.repository.UserRepository;
 import com.microservices.userservice.core.service.AuthService;
@@ -43,8 +44,10 @@ public class AuthServiceImpl implements AuthService {
                 .build();
         try {
             user = userRepository.save(user);
-            String token = jwtService.generateToken(user);
-            return new ResponseEntityDto(false, token);
+            UserResponseDto userResponseDto = new UserResponseDto(
+                    user.getId(), user.getName(), user.getEmail(), user.getRole()
+            );
+            return new ResponseEntityDto(false, userResponseDto);
         } catch (Exception e) {
             log.error("SignUp: Error occurred: {}", e.getMessage());
             throw new ModuleException("Failed to sign up");

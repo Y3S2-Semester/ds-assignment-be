@@ -1,6 +1,7 @@
 package com.microservices.userservice.controller;
 
 import com.microservices.userservice.core.model.User;
+import com.microservices.userservice.core.payload.UserResponseDto;
 import com.microservices.userservice.core.payload.common.ResponseEntityDto;
 import com.microservices.userservice.core.service.UserService;
 import com.microservices.userservice.core.type.Role;
@@ -21,13 +22,13 @@ public class UserController {
     private UserService userService;
 
     @GetMapping("me")
-    public User getMe() {
+    public UserResponseDto getMe() {
         return userService.getMe();
     }
 
-    @GetMapping("exists/{email}")
-    public Boolean userExists(@PathVariable String email) {
-        return userService.userExists(email);
+    @GetMapping("email/{email}")
+    public ResponseEntityDto userExists(@PathVariable String email) {
+        return userService.getUserByEmail(email);
     }
 
     @GetMapping("{id}")

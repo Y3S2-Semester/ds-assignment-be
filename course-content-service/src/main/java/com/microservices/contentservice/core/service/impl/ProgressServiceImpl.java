@@ -65,7 +65,7 @@ public class ProgressServiceImpl implements ProgressService {
 
 
         if (courseId != null) {
-            ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
+            ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
             if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
                 throw new ModuleException("Course not found");
             }
@@ -88,7 +88,7 @@ public class ProgressServiceImpl implements ProgressService {
 
             return new ResponseEntityDto(false, progressSummaryDto);
         } else {
-            ResponseEntityDto response = courseServiceClient.getCourseByInstructorId(userId, JwtAuthenticationFilter.jwtToken.get());
+            ResponseEntityDto response = courseServiceClient.getCourseByInstructorId(userId);
             if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
                 throw new ModuleException("Courses not found");
             }
@@ -120,7 +120,7 @@ public class ProgressServiceImpl implements ProgressService {
     }
 
     private void validateCourseEnrolled(String userId, String courseId) {
-        ResponseEntityDto response = enrollmentServiceClient.getEnrolledCourseIds(userId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = enrollmentServiceClient.getEnrolledCourseIds(userId);
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Failed to fetch enrollments of user");
         }
@@ -134,7 +134,7 @@ public class ProgressServiceImpl implements ProgressService {
     public ResponseEntityDto addProgress(ProgressCreateDto progressCreateDto) {
         String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        ResponseEntityDto response = courseServiceClient.getCourseById(progressCreateDto.getCourseId(), JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = courseServiceClient.getCourseById(progressCreateDto.getCourseId());
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
         }

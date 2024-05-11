@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.contentservice.client.CourseServiceClient;
 import com.microservices.contentservice.client.EnrollmentServiceClient;
-import com.microservices.contentservice.core.config.JwtAuthenticationFilter;
 import com.microservices.contentservice.core.exception.ModuleException;
 import com.microservices.contentservice.core.mapper.MapStructMapper;
 import com.microservices.contentservice.core.model.Content;
@@ -50,7 +49,7 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public ResponseEntityDto getAllContentByCourseId(String courseId) {
-        ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
 
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
@@ -103,7 +102,7 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public ResponseEntityDto addContentToCourse(String courseId, ContentCreateDto contentCreateDto) {
         Content contentToSave = mapStructMapper.contentCreateDtoToContent(contentCreateDto);
-        ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
         }
@@ -160,7 +159,7 @@ public class ContentServiceImpl implements ContentService {
     }
 
     private void courseOwnerShipValidation(String courseId, String userId) {
-        ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
         } else {
@@ -172,7 +171,7 @@ public class ContentServiceImpl implements ContentService {
     }
 
     private void courseEnrollmentValidation(String courseId, String userId) {
-        ResponseEntityDto response = enrollmentServiceClient.getEnrolledCourseIds(userId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = enrollmentServiceClient.getEnrolledCourseIds(userId);
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Failed to fetch enrollments");
         } else {

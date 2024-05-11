@@ -31,7 +31,7 @@ public class AdminController {
     }
 
     @PatchMapping("{id}")
-    public ResponseEntity<ResponseEntityDto> getAllContentsAwaitingApproval(@PathVariable String id, @RequestBody @NonNull ApprovalStatus approvalStatus) {
+    public ResponseEntity<ResponseEntityDto> updateApprovalOfContent(@PathVariable String id, @RequestBody @NonNull ApprovalStatus approvalStatus) {
         ResponseEntityDto response = contentService.updateApprovalOfContent(id, approvalStatus);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

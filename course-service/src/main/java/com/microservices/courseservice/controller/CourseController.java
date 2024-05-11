@@ -46,9 +46,9 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/course-name")
-    public ResponseEntity<ResponseEntityDto> getCourseByCourseName(@RequestParam String courseName) {
-        ResponseEntityDto response = courseService.getCourseByCourseName(courseName);
+    @GetMapping("/name/{name}")
+    public ResponseEntity<ResponseEntityDto> getCourseByCourseName(@PathVariable String name) {
+        ResponseEntityDto response = courseService.getCourseByCourseName(name);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -58,9 +58,9 @@ public class CourseController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/instructor")
-    public ResponseEntity<ResponseEntityDto> getAllCourseByInstructorId(@RequestParam String instructorId) {
-        ResponseEntityDto response = courseService.getCoursesByInstructor(instructorId);
+    @GetMapping("/instructor/{id}")
+    public ResponseEntity<ResponseEntityDto> getAllCourseByInstructorId(@PathVariable String id) {
+        ResponseEntityDto response = courseService.getCoursesByInstructor(id);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -5,11 +5,14 @@ spring:
   application:
     name: api-gateway
 
-jwt:
-  secret: 413F4428472B4B6250655368566D5970337336763979244226452948404D6351
-
 address:
   base:
     user-service: http://localhost:8000
     course-service: http://localhost:8100
     content-service: http://localhost:8200
+    enrollment-service: http://localhost:8300
+
+feign:
+  user-service:
+    name: user-service
+    url: http://localhost:8000
