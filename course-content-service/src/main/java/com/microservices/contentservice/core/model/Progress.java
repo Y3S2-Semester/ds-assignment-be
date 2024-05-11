@@ -30,4 +30,7 @@ public class Progress extends Auditable{
     @Field(targetType = FieldType.OBJECT_ID)
     private Content contentId;
 
+    @Field(targetType = FieldType.STRING)
+    private String courseId;
+
 }

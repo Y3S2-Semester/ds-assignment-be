@@ -9,9 +9,9 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.microservices</groupId>
-	<artifactId>content-service</artifactId>
+	<artifactId>enrollment-service</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>content-service</name>
+	<name>enrollment-service</name>
 	<description>Enrollment service</description>
 	<properties>
 		<java.version>17</java.version>

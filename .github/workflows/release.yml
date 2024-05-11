@@ -1,18 +1,130 @@
 name: Build and Push Docker Images to DockerHub
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
+  build_and_push_api_gateway:
+    name: Build and Push API Gateway
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v3
+        with:
+          context: ./api-gateway
+          push: true
+          tags: |
+            zulake/api-gateway:${{ github.sha }}
+            zulake/api-gateway:latest
+          cache-from: type=registry,ref=zulake/api-gateway:latest
+          cache-to: type=inline
+
+  build_and_push_course_content_service:
+    name: Build and Push Course Content Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v3
+        with:
+          context: ./course-content-service
+          push: true
+          tags: |
+            zulake/course-content-service:${{ github.sha }}
+            zulake/course-content-service:latest
+          cache-from: type=registry,ref=zulake/course-content-service:latest
+          cache-to: type=inline
+
+  build_and_push_course_service:
+    name: Build and Push Course Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v3
+        with:
+          context: ./course-service
+          push: true
+          tags: |
+            zulake/course-service:${{ github.sha }}
+            zulake/course-service:latest
+          cache-from: type=registry,ref=zulake/course-service:latest
+          cache-to: type=inline
+
+  build_and_push_enrollment_service:
+    name: Build and Push Enrollment Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v3
+        with:
+          context: ./enrollment-service
+          push: true
+          tags: |
+            zulake/enrollment-service:${{ github.sha }}
+            zulake/enrollment-service:latest
+          cache-from: type=registry,ref=zulake/enrollment-service:latest
+          cache-to: type=inline
+
+  build_and_push_notification_service:
+    name: Build and Push Notification Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v3
+        with:
+          context: ./notification-service
+          push: true
+          tags: |
+            zulake/notification-service:${{ github.sha }}
+            zulake/notification-service:latest
+          cache-from: type=registry,ref=zulake/notification-service:latest
+          cache-to: type=inline
+
+  build_and_push_payment_service:
+    name: Build and Push Payment Service
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - uses: docker/build-push-action@v3
+        with:
+          context: ./payment-service
+          push: true
+          tags: |
+            zulake/payment-service:${{ github.sha }}
+            zulake/payment-service:latest
+          cache-from: type=registry,ref=zulake/payment-service:latest
+          cache-to: type=inline
+
   build_and_push_user_service:
     name: Build and Push User Service
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Set up Docker BuildKit
-        run: |
-          echo "DOCKER_BUILDKIT=1" >> $GITHUB_ENV
-          echo "BUILDX_NO_DEFAULT_LOAD=true" >> $GITHUB_ENV
       - uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -26,18 +138,3 @@ jobs:
             zulake/user-service:latest
           cache-from: type=registry,ref=zulake/user-service:latest
           cache-to: type=inline
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-      - name: Update kubeconfig
-        run: |
-          aws eks update-kubeconfig --name ds-cluster
-      - name: Set image in Kubernetes deployment
-        run: |
-          kubectl set image deployment/user-service user-service=zulake/user-service:${{ github.sha }}
-      - name: Monitor rollout status
-        run: |
-          kubectl rollout status deployment/user-service

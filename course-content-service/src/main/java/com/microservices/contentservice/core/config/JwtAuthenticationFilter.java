@@ -29,14 +29,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String username = httpServletRequest.getHeader("username");
+        String userId = httpServletRequest.getHeader("userId");
+        if (userId == null) {
+            filterChain.doFilter(httpServletRequest, httpServletResponse);
+            return;
+        }
         String authoritiesStr = httpServletRequest.getHeader("role");
         Set<SimpleGrantedAuthority> simpleGrantedAuthorities = new HashSet<>();
         if(ModuleUtils.validString(authoritiesStr)) {
             simpleGrantedAuthorities=Arrays.stream(authoritiesStr.split(",")).distinct()
                     .filter(ModuleUtils::validString).map(SimpleGrantedAuthority::new).collect(Collectors.toSet());
         }
-        Authentication authentication = new UsernamePasswordAuthenticationToken(username, null, simpleGrantedAuthorities);
+        Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, simpleGrantedAuthorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
         jwtToken.set(authHeader);
         filterChain.doFilter(httpServletRequest, httpServletResponse);

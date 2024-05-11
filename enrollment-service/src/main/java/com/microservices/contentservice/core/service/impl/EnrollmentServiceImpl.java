@@ -21,9 +21,10 @@ import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.microservices.contentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.ALREADY_UN_ENROLLED;
 import static com.microservices.contentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.COURSE_NOT_FOUND;
@@ -125,5 +126,11 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         }
 
         return userResponseDto;
+    }
+
+    @Override
+    public ResponseEntityDto getEnrollmentsByUserId(String userId) {
+        List<Enrollment> enrollments = enrollmentRepository.findAllByUserIdAndActiveTrue(userId);
+        return new ResponseEntityDto(false, enrollments.stream().map(Enrollment::getCourseId).collect(Collectors.toSet()));
     }
 }

@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -32,18 +33,21 @@ public class ContentController {
     }
 
     @PostMapping("of/{courseId}")
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR')")
     public ResponseEntity<ResponseEntityDto> addContentToCourse(@PathVariable String courseId, @RequestBody ContentCreateDto contentCreateDto) {
         ResponseEntityDto response = contentService.addContentToCourse(courseId, contentCreateDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PatchMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR')")
     public ResponseEntity<ResponseEntityDto> updateContent(@PathVariable String id, @RequestBody ContentUpdateDto contentUpdateDto) {
         ResponseEntityDto response = contentService.updateContent(id, contentUpdateDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
+    @PreAuthorize("hasAnyAuthority('INSTRUCTOR')")
     public ResponseEntity<ResponseEntityDto> deleteContent(@PathVariable String id) {
         ResponseEntityDto response = contentService.archiveContent(id);
         return new ResponseEntity<>(response, HttpStatus.OK);

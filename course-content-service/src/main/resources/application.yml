@@ -1,9 +1,20 @@
 server:
   port: 8200
 
-mongodb:
-  connection-string: mongodb+srv://shabina:password321@cluster0.jxpty5s.mongodb.net/e-academy?retryWrites=true&w=majority&appName=Cluster0
-
 spring:
   application:
     name: course-content-service
+  data:
+    mongodb:
+      uri: mongodb+srv://shabina:password321@cluster0.jxpty5s.mongodb.net/e-academy?retryWrites=true&w=majority&appName=Cluster0
+
+feign:
+  course-service:
+    name: course-service
+    url: http://localhost:8100
+  user-service:
+    name: user-service
+    url: http://localhost:8000
+  enrollment-service:
+    name: enrollment-service
+    url: http://localhost:8300
