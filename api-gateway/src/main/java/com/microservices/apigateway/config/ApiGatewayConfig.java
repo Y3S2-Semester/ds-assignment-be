@@ -25,6 +25,12 @@ public class ApiGatewayConfig {
     @Value("${address.base.enrollment-service}")
     private String enrollmentServiceAddress;
 
+    @Value("${address.base.notification-service}")
+    private String notificationServiceAddress;
+
+    @Value("${address.base.payment-service}")
+    private String paymentServiceAddress;
+
     @NonNull
     private final AuthenticationFilter authenticationFilter;
 
@@ -48,10 +54,20 @@ public class ApiGatewayConfig {
                                 .filter(authenticationFilter))
                         .uri(contentServiceAddress))
                 .route(p -> p
-                        .path("/ENROLL/**")
-                        .filters(f -> f.rewritePath("/ENROLL/(?<segment>.*)", replacement)
+                        .path("/ENROLLMENT/**")
+                        .filters(f -> f.rewritePath("/ENROLLMENT/(?<segment>.*)", replacement)
                                 .filter(authenticationFilter))
                         .uri(enrollmentServiceAddress))
+                .route(p -> p
+                        .path("/NOTIFICATION/**")
+                        .filters(f -> f.rewritePath("/NOTIFICATION/(?<segment>.*)", replacement)
+                                .filter(authenticationFilter))
+                        .uri(notificationServiceAddress))
+                .route(p -> p
+                        .path("/PAYMENT/**")
+                        .filters(f -> f.rewritePath("/PAYMENT/(?<segment>.*)", replacement)
+                                .filter(authenticationFilter))
+                        .uri(paymentServiceAddress))
                 .build();
     }
 }

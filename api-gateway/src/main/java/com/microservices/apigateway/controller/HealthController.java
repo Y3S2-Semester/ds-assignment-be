@@ -1,4 +1,4 @@
-package com.microservices.userservice.controller;
+package com.microservices.apigateway.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +12,6 @@ public class HealthController {
 
     @GetMapping
     public String healthCheck() {
-        return "user-service is up and running!!";
+        return "api-gateway is up and running!!";
     }
 }
