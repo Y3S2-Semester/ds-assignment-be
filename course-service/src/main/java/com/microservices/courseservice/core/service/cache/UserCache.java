@@ -1,5 +1,6 @@
 package com.microservices.courseservice.core.service.cache;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.courseservice.core.payload.fiegn.ResponseEntityDto;
 import com.microservices.courseservice.core.payload.fiegn.UserResponseDto;
@@ -9,7 +10,10 @@ import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class UserCache {
@@ -30,23 +34,15 @@ public class UserCache {
         if (userMap.isEmpty()) {
             ResponseEntityDto responseEntity = userServiceClient.getAllUserByOptionalRole(Role.INSTRUCTOR);
 
-
             if (responseEntity != null && responseEntity.getStatus().equals("successful")) {
-                // Assuming responseEntity.getResults() returns a List<LinkedHashMap<String, Object>>
-                List<LinkedHashMap<String, Object>> results = (List<LinkedHashMap<String, Object>>) responseEntity.getResults();
-
-                for (LinkedHashMap<String, Object> result : results) {
-                    UserResponseDto user = new UserResponseDto();
-                    user.setId((String) result.get("id"));
-                    user.setName((String) result.get("name"));
-                    user.setEmail((String) result.get("email"));
-                    Object role = result.get("role");
-                    if (role.equals("INSTRUCTOR")) {
-                        user.setRole(Role.INSTRUCTOR);
-                    } else {
-                        user.setRole(Role.LEARNER);
+                for (Object userResponse: responseEntity.getResults()) {
+                    UserResponseDto user = null;
+                    try {
+                        user = objectMapper.convertValue(objectMapper.writeValueAsString(userResponse), UserResponseDto.class);
+                        userResponseDtos.add(user);
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
                     }
-                    userResponseDtos.add(user);
                     userMap.put(user.getId(), user);
                 }
                 return userResponseDtos.stream()

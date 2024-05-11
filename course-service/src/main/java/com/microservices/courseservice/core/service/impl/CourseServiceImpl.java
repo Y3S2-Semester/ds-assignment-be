@@ -12,6 +12,7 @@ import com.microservices.courseservice.core.transformer.CourseTransformer;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,13 +34,17 @@ public class CourseServiceImpl implements CourseService {
     @NonNull
     private final UserCache userCache;
 
+    private String getCurrentUserId() {
+        return  (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
     @Override
     @Transactional
     public ResponseEntityDto addCourse(CourseRequestDto courseRequestDto) {
         try {
             log.info("CourseServiceImpl.addCourse() has been invoked");
-            UserResponseDto userByUserId = userCache.getUserResponseDto(courseRequestDto.getInstructor());
-            Course savedCourse = courseRepository.save(courseTransformer.reverseTransform(courseRequestDto));
+            UserResponseDto userByUserId = userCache.getUserResponseDto(getCurrentUserId());
+            Course savedCourse = courseRepository.save(courseTransformer.reverseTransform(courseRequestDto, getCurrentUserId()));
             CourseResponseDto transformCourseResponseDto = courseTransformer.transformCourseDto(savedCourse, userByUserId);
             return new ResponseEntityDto(false, transformCourseResponseDto);
         } catch (Exception ex) {
