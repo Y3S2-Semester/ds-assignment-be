@@ -1,4 +1,4 @@
-name: Build, Push Docker Images, and Update K8s Configs
+name: Build, Push Docker Images, and Update Kubernetes Configurations
 
 on:
   push:
@@ -7,19 +7,24 @@ on:
       - test/k8s-deployment
 
 jobs:
-  build_and_push:
-    name: Build and Push Service
+  build_push_and_update_k8s:
+    name: Build, Push and Update K8s Config
     runs-on: ubuntu-latest
     strategy:
       matrix:
         service: [api-gateway, course-content-service, course-service, enrollment-service, notification-service, payment-service, user-service]
     steps:
-      - uses: actions/checkout@v3
-      - uses: docker/login-action@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - uses: docker/build-push-action@v3
+
+      - name: Build and Push Docker Images
+        uses: docker/build-push-action@v3
         with:
           context: ./${{ matrix.service }}
           push: true
@@ -28,13 +33,16 @@ jobs:
             zulake/${{ matrix.service }}:latest
           cache-from: type=registry,ref=zulake/${{ matrix.service }}:latest
           cache-to: type=inline
+
       - name: Update Kubernetes Deployment Image Tag
         run: |
-          sed -i 's|image: zulake/${{ matrix.service }}:.*|image: zulake/${{ matrix.service }}:${{ github.sha }}|' ./kube-config/service/${{ matrix.service }}/deployment.yml
-      - name: Commit and Push Changes
+          service="${{ matrix.service }}"
+          sed -i "s|image: zulake/$service:.*|image: zulake/$service:${{ github.sha }}|" ./kube-config/services/$service/deployment.yml
+
+      - name: Commit and Push Changes to K8s Config Repo
         run: |
-          git config --global user.email "actions@github.com"
-          git config --global user.name "GitHub Actions"
-          git add ./kube-config/service/${{ matrix.service }}/deployment.yml
-          git commit -m "Update image tag for ${{ matrix.service }} to ${{ github.sha }}"
-          git push
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+          git add ./kube-config/services/${{ matrix.service }}/deployment.yml
+          git commit -m "Update image tag for $service to ${{ github.sha }}"
+          git push origin HEAD:${{ github.ref }}
