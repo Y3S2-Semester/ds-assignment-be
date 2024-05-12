@@ -26,7 +26,7 @@ public class AuthenticationFilter implements GatewayFilter {
     private final UserService userService;
 
     private final AntPathMatcher pathMatcher = new AntPathMatcher();
-    private final List<String> publicUrls = List.of("/api/v1/auth/**", "/api/v1/health");
+    private final List<String> publicUrls = List.of("/api/v1/auth/**", "/actuator/**");
 
     @SneakyThrows
     @Override
