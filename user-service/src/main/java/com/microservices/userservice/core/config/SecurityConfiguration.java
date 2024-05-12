@@ -67,7 +67,8 @@ public class SecurityConfiguration {
                                 "/api/v1/user/exists/**",
                                 "api/v1/health",
                                 "/api/v1/user/**",
-                                "/actuator/**")
+                                "actuator/health/liveness",
+                                "actuator/health/readiness")
                         .permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(manager -> manager.sessionCreationPolicy(STATELESS))
