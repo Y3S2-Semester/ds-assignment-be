@@ -26,7 +26,7 @@ public class NotificationSenderController {
     @GetMapping("/text-sender")
     public void sendText(@RequestBody TextMessageDto textMessageDto){
         log.info("NotificationSenderController.sendText() invoked.");
-        textMessageSender.sendTextMessage("+94769654581","First message");
+        textMessageSender.sendTextMessage(textMessageDto.getReceiver(),textMessageDto.getMessage());
     }
 
     @GetMapping("/mail-sender")
