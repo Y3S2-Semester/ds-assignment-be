@@ -1,5 +1,6 @@
 package com.microservices.courseservice.core.service.impl;
 
+import com.microservices.courseservice.core.exception.ModuleException;
 import com.microservices.courseservice.core.model.Course;
 import com.microservices.courseservice.core.payload.CourseRequestDto;
 import com.microservices.courseservice.core.payload.CourseResponseDto;
@@ -12,8 +13,8 @@ import com.microservices.courseservice.core.transformer.CourseTransformer;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,18 +34,39 @@ public class CourseServiceImpl implements CourseService {
     @NonNull
     private final UserCache userCache;
 
+    private String getCurrentUserId() {
+        return  (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    }
+
     @Override
-    @Transactional
     public ResponseEntityDto addCourse(CourseRequestDto courseRequestDto) {
         try {
             log.info("CourseServiceImpl.addCourse() has been invoked");
-            UserResponseDto userByUserId = userCache.getUserResponseDto(courseRequestDto.getInstructor());
-            Course savedCourse = courseRepository.save(courseTransformer.reverseTransform(courseRequestDto));
+            UserResponseDto userByUserId = userCache.getUserResponseDto(getCurrentUserId());
+            Course savedCourse = courseRepository.save(courseTransformer.reverseTransform(courseRequestDto, getCurrentUserId()));
             CourseResponseDto transformCourseResponseDto = courseTransformer.transformCourseDto(savedCourse, userByUserId);
             return new ResponseEntityDto(false, transformCourseResponseDto);
         } catch (Exception ex) {
             log.error("Error occurred while adding course: {}", ex.getMessage());
             return new ResponseEntityDto("Exception occurred", false);
+        }
+    }
+
+    @Override
+    public ResponseEntityDto updateCourse(String courseId, CourseRequestDto courseRequestDto) {
+        Optional<Course> optionalCourse = courseRepository.findById(courseId);
+        if (optionalCourse.isPresent()) {
+            UserResponseDto userByUserId = userCache.getUserResponseDto(getCurrentUserId());
+
+            Course course = courseTransformer.reverseTransform(courseRequestDto, getCurrentUserId());
+            course.setCourseId(optionalCourse.get().getCourseId());
+            Course savedCourse = courseRepository.save(course);
+
+            CourseResponseDto transformCourseResponseDto = courseTransformer.transformCourseDto(savedCourse, userByUserId);
+            return new ResponseEntityDto(false, transformCourseResponseDto);
+        } else {
+            log.error("Course with ID {} not found", courseId);
+            throw new ModuleException("Course not found");
         }
     }
 
@@ -57,8 +79,8 @@ public class CourseServiceImpl implements CourseService {
             CourseResponseDto courseResponseDto = courseTransformer.transformCourseDto(optionalCourse.get(), userByUserId);
             return new ResponseEntityDto(false, courseResponseDto);
         } else {
-            log.warn("Course with ID {} not found", courseId);
-            return new ResponseEntityDto(true, "Course not found");
+            log.error("Course with ID {} not found", courseId);
+            throw new ModuleException("Course not found");
         }
     }
 
@@ -92,7 +114,7 @@ public class CourseServiceImpl implements CourseService {
     public ResponseEntityDto getCoursesByInstructor(String instructorId) {
         log.info("CourseServiceImpl.getCoursesByInstructor() has been invoked");
         List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
-        Iterable<Course> courses = courseRepository.findByInstructorId(instructorId);
+        List<Course> courses = courseRepository.findByInstructorId(instructorId);
         for (Course course : courses) {
             UserResponseDto userByUserId = userCache.getUserResponseDto(course.getInstructorId());
             courseResponseDtos.add(courseTransformer.transformCourseDto(course, userByUserId));

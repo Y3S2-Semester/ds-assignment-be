@@ -16,9 +16,6 @@ public class CourseRequestDto {
     private String courseDescription;
 
     @NonNull
-    private String instructor;
-
-    @NonNull
     private Category category;
 
     private double price;

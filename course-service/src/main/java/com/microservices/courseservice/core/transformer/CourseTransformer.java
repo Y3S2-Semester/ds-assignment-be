@@ -23,14 +23,14 @@ public class CourseTransformer {
         return courseResponseDto;
     }
 
-    public Course reverseTransform(CourseRequestDto courseRequestDto) {
+    public Course reverseTransform(CourseRequestDto courseRequestDto, String instructorId) {
         Course course = new Course();
         course.setCategory(courseRequestDto.getCategory());
         course.setCourseName(courseRequestDto.getCourseName());
         course.setPrice(courseRequestDto.getPrice());
         course.setCourseDescription(courseRequestDto.getCourseDescription());
         course.setStatus(courseRequestDto.getStatus());
-        course.setInstructorId(courseRequestDto.getInstructor());
+        course.setInstructorId(instructorId);
         course.setActive(courseRequestDto.isActive());
         return course;
     }

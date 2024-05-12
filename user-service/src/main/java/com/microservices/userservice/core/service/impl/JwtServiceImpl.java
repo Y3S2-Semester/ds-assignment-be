@@ -1,5 +1,6 @@
 package com.microservices.userservice.core.service.impl;
 
+import com.microservices.userservice.core.model.User;
 import com.microservices.userservice.core.service.JwtService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -42,7 +43,7 @@ public class JwtServiceImpl implements JwtService {
     }
 
     @Override
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User userDetails) {
         return generateToken(new HashMap<>(), userDetails);
     }
 
@@ -57,15 +58,16 @@ public class JwtServiceImpl implements JwtService {
         return claimsResolvers.apply(claims);
     }
 
-    private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
-        String role = userDetails.getAuthorities().stream()
+    private String generateToken(Map<String, Object> extraClaims, User user) {
+        String role = user.getAuthorities().stream()
                 .findFirst()
                 .map(GrantedAuthority::getAuthority)
                 .orElse("");
 
         Map<String, Object> claims = new HashMap<>();
         claims.put("role", role);
-        claims.put("username", userDetails.getUsername());
+        claims.put("username", user.getUsername());
+        claims.put("userId", user.getId());
         if (extraClaims != null) {
             claims.putAll(extraClaims);
         }
@@ -73,7 +75,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts
                 .builder()
                 .setClaims(claims)
-                .setSubject(userDetails.getUsername())
+                .setSubject(user.getId())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtSigningExpirationMs))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256).compact();

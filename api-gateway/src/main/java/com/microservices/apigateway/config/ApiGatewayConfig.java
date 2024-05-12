@@ -1,7 +1,7 @@
 package com.microservices.apigateway.config;
 
-import com.microservices.apigateway.filter.JwtAuthenticationFilter;
-import jakarta.validation.constraints.NotNull;
+import com.microservices.apigateway.filter.AuthenticationFilter;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -31,8 +31,8 @@ public class ApiGatewayConfig {
     @Value("${address.base.payment-service}")
     private String paymentServiceAddress;
 
-    @NotNull
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @NonNull
+    private final AuthenticationFilter authenticationFilter;
 
     @Bean
     public RouteLocator gatewayRouter(RouteLocatorBuilder builder) {
@@ -41,32 +41,32 @@ public class ApiGatewayConfig {
                 .route(p -> p
                         .path("/USER/**")
                         .filters(f -> f.rewritePath("/USER/(?<segment>.*)", replacement)
-                                .filter(jwtAuthenticationFilter))
+                                .filter(authenticationFilter))
                         .uri(userServiceAddress))
                 .route(p -> p
                         .path("/COURSE/**")
                         .filters(f -> f.rewritePath("/COURSE/(?<segment>.*)", replacement)
-                                .filter(jwtAuthenticationFilter))
+                                .filter(authenticationFilter))
                         .uri(courseServiceAddress))
                 .route(p -> p
                         .path("/CONTENT/**")
                         .filters(f -> f.rewritePath("/CONTENT/(?<segment>.*)", replacement)
-                                .filter(jwtAuthenticationFilter))
+                                .filter(authenticationFilter))
                         .uri(contentServiceAddress))
                 .route(p -> p
                         .path("/ENROLLMENT/**")
                         .filters(f -> f.rewritePath("/ENROLLMENT/(?<segment>.*)", replacement)
-                                .filter(jwtAuthenticationFilter))
+                                .filter(authenticationFilter))
                         .uri(enrollmentServiceAddress))
                 .route(p -> p
                         .path("/NOTIFICATION/**")
                         .filters(f -> f.rewritePath("/NOTIFICATION/(?<segment>.*)", replacement)
-                                .filter(jwtAuthenticationFilter))
+                                .filter(authenticationFilter))
                         .uri(notificationServiceAddress))
                 .route(p -> p
                         .path("/PAYMENT/**")
                         .filters(f -> f.rewritePath("/PAYMENT/(?<segment>.*)", replacement)
-                                .filter(jwtAuthenticationFilter))
+                                .filter(authenticationFilter))
                         .uri(paymentServiceAddress))
                 .build();
     }

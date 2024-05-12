@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.contentservice.client.CourseServiceClient;
 import com.microservices.contentservice.client.EnrollmentServiceClient;
-import com.microservices.contentservice.core.config.JwtAuthenticationFilter;
 import com.microservices.contentservice.core.exception.ModuleException;
 import com.microservices.contentservice.core.model.Content;
 import com.microservices.contentservice.core.model.Progress;
@@ -34,7 +33,7 @@ public class ProgressServiceImpl implements ProgressService {
 
     @NonNull
     private final EnrollmentServiceClient enrollmentServiceClient;
-
+    @NonNull
     private final CourseServiceClient courseServiceClient;
     @NonNull
     private final ProgressRepository progressRepository;
@@ -65,11 +64,19 @@ public class ProgressServiceImpl implements ProgressService {
 
 
         if (courseId != null) {
-            ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
+            ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
             if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
                 throw new ModuleException("Course not found");
             }
-            CourseResponseDto course = (CourseResponseDto) response.getResults().get(0);
+            Object courseResponse = response.getResults().get(0);
+            CourseResponseDto course = null;
+            try {
+                String responseJson = objectMapper.writeValueAsString(courseResponse);
+                course = objectMapper.readValue(responseJson, CourseResponseDto.class);
+            } catch (JsonProcessingException e) {
+                throw new ModuleException(e.getMessage());
+            }
+
             if (!Objects.equals(course.getInstructor().getId(), userId)) {
                 throw new ModuleException("Only course owner can view");
             }
@@ -84,11 +91,11 @@ public class ProgressServiceImpl implements ProgressService {
             progressSummaryDto.setCourseResponseDto(course);
             progressSummaryDto.setTotalContentCount(totalContentCount);
             progressSummaryDto.setViewedContentCount(viewedContentCount);
-            progressSummaryDto.setProgressPercentage((float) ((viewedContentCount / totalContentCount) * 100.0));
+            progressSummaryDto.setProgressPercentage(totalContentCount > 0 ? (float) ((viewedContentCount / totalContentCount) * 100.0) : 0);
 
             return new ResponseEntityDto(false, progressSummaryDto);
         } else {
-            ResponseEntityDto response = courseServiceClient.getCourseByInstructorId(userId, JwtAuthenticationFilter.jwtToken.get());
+            ResponseEntityDto response = courseServiceClient.getCourseByInstructorId(userId);
             if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
                 throw new ModuleException("Courses not found");
             }
@@ -96,20 +103,24 @@ public class ProgressServiceImpl implements ProgressService {
             List<ProgressSummaryDto> progressSummaryList = new ArrayList<>();
             try {
                 List<Object> courseResponseList = response.getResults();
-                List<CourseResponseDto> courseList = objectMapper.readValue(objectMapper.writeValueAsString(courseResponseList), List.class);
+                List<CourseResponseDto> courseList = new ArrayList<>();
+                for (Object courseObj: courseResponseList) {
+                    courseList.add(objectMapper.readValue(objectMapper.writeValueAsString(courseObj), CourseResponseDto.class));
+                }
 
                 List<String> owningCourses = courseList.stream().map(CourseResponseDto::getId).toList();
                 List<Progress> progressList = progressRepository.findAllByCourseIdIsIn(owningCourses);
                 List<Content> contentList = contentRepository.findAllByCourseIdIsIn(owningCourses);
 
                 for(CourseResponseDto course: courseList) {
-                    int totalContent = contentList.stream().filter(content -> content.getId().equals(course.getId())).collect(Collectors.toSet()).size();
+                    int totalContent = contentList.stream().filter(content -> content.getCourseId().equals(course.getId())).collect(Collectors.toSet()).size();
                     int viewedContent = progressList.stream().filter(progress -> progress.getCourseId().equals(course.getId())).collect(Collectors.toSet()).size();
                     ProgressSummaryDto progressSummaryDto = new ProgressSummaryDto();
                     progressSummaryDto.setCourseResponseDto(course);
                     progressSummaryDto.setTotalContentCount(totalContent);
                     progressSummaryDto.setViewedContentCount(viewedContent);
-                    progressSummaryDto.setProgressPercentage((float) ((viewedContent / totalContent) * 100));
+                    progressSummaryDto.setProgressPercentage(totalContent > 0 ? (float) ((viewedContent / totalContent) * 100) : 0);
+                    progressSummaryList.add(progressSummaryDto);
                 }
 
             } catch (JsonProcessingException e) {
@@ -120,7 +131,7 @@ public class ProgressServiceImpl implements ProgressService {
     }
 
     private void validateCourseEnrolled(String userId, String courseId) {
-        ResponseEntityDto response = enrollmentServiceClient.getEnrolledCourseIds(userId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = enrollmentServiceClient.getEnrolledCourseIds(userId);
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Failed to fetch enrollments of user");
         }
@@ -134,7 +145,7 @@ public class ProgressServiceImpl implements ProgressService {
     public ResponseEntityDto addProgress(ProgressCreateDto progressCreateDto) {
         String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        ResponseEntityDto response = courseServiceClient.getCourseById(progressCreateDto.getCourseId(), JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = courseServiceClient.getCourseById(progressCreateDto.getCourseId());
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
         }
