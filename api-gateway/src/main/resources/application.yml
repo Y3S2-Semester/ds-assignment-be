@@ -6,3 +6,12 @@ spring:
     active: local
   application:
     name: api-gateway
+
+jwt:
+  secret: 413F4428472B4B6250655368566D5970337336763979244226452948404D6351
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
