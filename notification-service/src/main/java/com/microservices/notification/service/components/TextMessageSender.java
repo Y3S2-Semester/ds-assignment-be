@@ -22,6 +22,7 @@ public class TextMessageSender {
 
 
     public void sendTextMessage(String toNumber, String messageBody) {
+
         String url = apiUrl.replace("[USER_ID]", userId)
                 .replace("[API_KEY]", apiKey)
                 .replace("[TO]", toNumber)
