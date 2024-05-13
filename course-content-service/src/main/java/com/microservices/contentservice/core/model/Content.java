@@ -27,7 +27,6 @@ public class Content extends Auditable{
     @Field(targetType = FieldType.OBJECT_ID)
     private String id;
 
-    @Field(targetType = FieldType.OBJECT_ID)
     @Indexed
     private String courseId;
 

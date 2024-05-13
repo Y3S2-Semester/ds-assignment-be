@@ -20,14 +20,12 @@ import org.springframework.data.mongodb.core.mapping.FieldType;
 public class Progress extends Auditable{
 
     @Id
-    @Field(targetType = FieldType.OBJECT_ID)
     private String id;
 
     @Field(targetType = FieldType.STRING)
-    @DBRef
     private String userId;
 
-    @Field(targetType = FieldType.OBJECT_ID)
+    @DBRef
     private Content contentId;
 
     @Field(targetType = FieldType.STRING)

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microservices.contentservice.client.CourseServiceClient;
 import com.microservices.contentservice.client.EnrollmentServiceClient;
-import com.microservices.contentservice.core.config.JwtAuthenticationFilter;
 import com.microservices.contentservice.core.exception.ModuleException;
 import com.microservices.contentservice.core.mapper.MapStructMapper;
 import com.microservices.contentservice.core.model.Content;
@@ -50,7 +49,7 @@ public class ContentServiceImpl implements ContentService {
 
     @Override
     public ResponseEntityDto getAllContentByCourseId(String courseId) {
-        ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
 
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
@@ -103,7 +102,7 @@ public class ContentServiceImpl implements ContentService {
     @Override
     public ResponseEntityDto addContentToCourse(String courseId, ContentCreateDto contentCreateDto) {
         Content contentToSave = mapStructMapper.contentCreateDtoToContent(contentCreateDto);
-        ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
         }
@@ -160,19 +159,27 @@ public class ContentServiceImpl implements ContentService {
     }
 
     private void courseOwnerShipValidation(String courseId, String userId) {
-        ResponseEntityDto response = courseServiceClient.getCourseById(courseId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = courseServiceClient.getCourseById(courseId);
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Course not found");
         } else {
-            CourseResponseDto courseResponse = (CourseResponseDto) response.getResults().get(0);
-            if (!Objects.equals(courseResponse.getInstructor().getId(), userId)) {
+            Object courseResponse = response.getResults().get(0);
+            CourseResponseDto course = null;
+            try {
+                String responseJson = objectMapper.writeValueAsString(courseResponse);
+                course = objectMapper.readValue(responseJson, CourseResponseDto.class);
+            } catch (JsonProcessingException e) {
+                log.error("courseOwnerShipValidation: Error occurred: {}", e.getMessage());
+                throw new ModuleException(e.getMessage());
+            }
+            if (!Objects.equals(course.getInstructor().getId(), userId)) {
                 throw new ModuleException("You dont have permission to perform this action");
             }
         }
     }
 
     private void courseEnrollmentValidation(String courseId, String userId) {
-        ResponseEntityDto response = enrollmentServiceClient.getEnrolledCourseIds(userId, JwtAuthenticationFilter.jwtToken.get());
+        ResponseEntityDto response = enrollmentServiceClient.getEnrolledCourseIds(userId);
         if (Objects.equals(response.getStatus(), ResponseEntityDto.UNSUCCESSFUL)) {
             throw new ModuleException("Failed to fetch enrollments");
         } else {

@@ -1,6 +1,7 @@
 package com.microservices.userservice.core.service.impl;
 
 import com.microservices.userservice.core.exception.EntityNotFoundException;
+import com.microservices.userservice.core.exception.ModuleException;
 import com.microservices.userservice.core.model.User;
 import com.microservices.userservice.core.payload.UserResponseDto;
 import com.microservices.userservice.core.payload.common.ResponseEntityDto;
@@ -34,19 +35,34 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getCurrentUser() {
-        UserDetails userDetails = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return (User) userDetails;
+        User currentUser = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Optional<User> user = userRepository.findById(currentUser.getId());
+        if (user.isPresent()) {
+            return user.get();
+        } else {
+            throw new EntityNotFoundException("User not found");
+        }
     }
 
     @Override
-    public User getMe() {
-        return this.getCurrentUser();
+    public UserResponseDto getMe() {
+        User user = this.getCurrentUser();
+        return new UserResponseDto(
+                user.getId(), user.getName(), user.getEmail(), user.getRole()
+        );
     }
 
     @Override
-    public Boolean userExists(String username) {
+    public ResponseEntityDto getUserByEmail(String username) {
         Optional<User> user = userRepository.findByEmail(username);
-        return user.isPresent();
+        if (user.isPresent()) {
+            UserResponseDto userResponseDto = new UserResponseDto(
+                    user.get().getId(), user.get().getName(), user.get().getEmail(), user.get().getRole()
+            );
+            return new ResponseEntityDto(false, userResponseDto);
+        } else {
+            throw new ModuleException("User not found");
+        }
     }
 
     @Override
