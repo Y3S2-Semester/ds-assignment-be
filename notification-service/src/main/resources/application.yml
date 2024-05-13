@@ -18,3 +18,9 @@ notification:
     number: +12513136047
     twillio_account_sid: AC0f2ece6f6a6093d75087ac58e978873c
     twillio_account_token: 5cd840031d94106e571aaaca8217b3d9
+
+management:
+  endpoint:
+    health:
+      probes:
+        enabled: true
