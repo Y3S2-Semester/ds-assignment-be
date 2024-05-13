@@ -1,6 +1,7 @@
 package com.microservices.userservice.core.service.impl;
 
 import com.microservices.userservice.core.exception.ModuleException;
+import com.microservices.userservice.core.payload.LoginResponseDto;
 import com.microservices.userservice.core.payload.SignUpRequest;
 import com.microservices.userservice.core.model.User;
 import com.microservices.userservice.core.payload.UserResponseDto;
@@ -57,10 +58,18 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public ResponseEntityDto signIn(String email, String password) {
         try {
-            Optional<User> user = userRepository.findByEmail(email);
-            if (user.isPresent()) {
-                String token = jwtService.generateToken(user.get());
-                return new ResponseEntityDto(false, token);
+            Optional<User> optionalUser = userRepository.findByEmail(email);
+            if (optionalUser.isPresent()) {
+                User user = optionalUser.get();
+                String token = jwtService.generateToken(user);
+                LoginResponseDto loginResponseDto = LoginResponseDto.builder()
+                        .token(token)
+                        .id(user.getId())
+                        .name(user.getName())
+                        .email(user.getEmail())
+                        .role(user.getRole())
+                        .build();
+                return new ResponseEntityDto(false, loginResponseDto);
             }
             throw new AccessDeniedException("Unauthorized");
         } catch (Exception e) {
