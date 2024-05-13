@@ -100,12 +100,15 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public ResponseEntityDto getAllCourses() {
+        UserResponseDto userByUserId = null;
         log.info("CourseServiceImpl.getAllCourses() has been invoked");
         List<CourseResponseDto> courseResponseDtos = new ArrayList<>();
         Iterable<Course> courses = courseRepository.findAll();
         for (Course course : courses) {
-            UserResponseDto userByUserId = userCache.getUserResponseDto(course.getInstructorId());
-            courseResponseDtos.add(courseTransformer.transformCourseDto(course, userByUserId));
+            if(course.getInstructorId()!=null) {
+                userByUserId = userCache.getUserResponseDto(course.getInstructorId());
+                courseResponseDtos.add(courseTransformer.transformCourseDto(course, userByUserId));
+            }
         }
         return new ResponseEntityDto(false, courseResponseDtos);
     }
