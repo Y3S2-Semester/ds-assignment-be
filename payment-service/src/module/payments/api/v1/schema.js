@@ -8,4 +8,3 @@ export const initializePaymentSchema = Joi.object({
     address: Joi.string().optional(),
   }).required(),
 });
-

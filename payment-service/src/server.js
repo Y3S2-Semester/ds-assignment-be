@@ -7,6 +7,7 @@ import config from "./config";
 import { errorHandler, resourceNotFoundHandler } from "./middleware";
 import { connectMongo } from "./database";
 import payment from "./module/payments/api/v1/controller";
+import { authorization } from "./middleware/auth";
 
 const initialize = () => {
   const app = express();
@@ -23,9 +24,11 @@ const initialize = () => {
 
   app.use(context.middleware);
 
+  app.use(authorization);
+
   connectMongo();
 
-  app.use("/api", payment);
+  app.use("/api/v1/payment", payment);
 
   app.use(resourceNotFoundHandler);
 
