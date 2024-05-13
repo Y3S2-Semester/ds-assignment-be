@@ -24,7 +24,6 @@ import javax.validation.Valid;
 @RequestMapping("/api/v1/course")
 @RequiredArgsConstructor
 @Slf4j
-@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", allowCredentials = "true")
 public class CourseController {
 
     @NonNull
