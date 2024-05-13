@@ -21,12 +21,12 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "sign-up", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntityDto signUp(@RequestBody SignUpRequest signUpRequest) {
+    public ResponseEntityDto register(@RequestBody SignUpRequest signUpRequest) {
         return authService.signUp(signUpRequest);
     }
 
     @PostMapping(value = "/sign-in", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntityDto signIn(@RequestBody SignInRequest signInRequest) {
+    public ResponseEntityDto login(@RequestBody SignInRequest signInRequest) {
         return authService.signIn(signInRequest.getEmail(), signInRequest.getPassword());
     }
 }
