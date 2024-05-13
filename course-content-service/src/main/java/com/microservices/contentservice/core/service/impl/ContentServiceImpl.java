@@ -46,6 +46,9 @@ public class ContentServiceImpl implements ContentService {
     private String getCurrentUserId() {
         return  (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
+    private String getCurrentUserRole() {
+        return  (String) SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().findFirst().get().getAuthority();
+    }
 
     @Override
     public ResponseEntityDto getAllContentByCourseId(String courseId) {
@@ -119,7 +122,7 @@ public class ContentServiceImpl implements ContentService {
         contentToSave.setActive(true);
         contentToSave.setApproved(ApprovalStatus.AWAITING);
         contentToSave = contentRepository.save(contentToSave);
-        return new ResponseEntityDto(false, contentToSave);
+        return new ResponseEntityDto(false, mapStructMapper.contentToContentResponseDto(contentToSave));
     }
 
     @Override
@@ -153,7 +156,8 @@ public class ContentServiceImpl implements ContentService {
             throw new ModuleException("Course content not found");
 
         String userId = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        courseEnrollmentValidation(content.get().getCourseId(), userId);
+        if (getCurrentUserRole().equals("LEARNER"))
+            courseEnrollmentValidation(content.get().getCourseId(), userId);
 
         return new ResponseEntityDto(false, mapStructMapper.contentToContentResponseDto(content.get()));
     }
