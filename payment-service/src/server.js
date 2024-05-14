@@ -16,7 +16,13 @@ const initialize = () => {
 
   app.use(express.urlencoded({ extended: true }));
 
-  app.use(cors());
+  app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['*'],
+    exposedHeaders: ['*'],
+    credentials: true,
+  }));
 
   app.use(helmet());
 
