@@ -22,6 +22,10 @@ notification:
       id: 27143
 
 management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
   endpoint:
     health:
       probes:
