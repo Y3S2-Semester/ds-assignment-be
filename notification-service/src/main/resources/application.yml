@@ -15,9 +15,11 @@ notification:
     bcc: newchattabotta@gmail.com
 
   text:
-    number: +12513136047
-    twillio_account_sid: AC0f2ece6f6a6093d75087ac58e978873c
-    twillio_account_token: 5cd840031d94106e571aaaca8217b3d9
+    api:
+      url: https://app.notify.lk/api/v1/send?user_id=[USER_ID]&api_key=[API_KEY]&sender_id=NotifyDEMO&to=[TO]&message=[MESSAGE]
+      key: e1gL2WZfflzkOjzoUmTy
+    user:
+      id: 27143
 
 management:
   endpoint:
