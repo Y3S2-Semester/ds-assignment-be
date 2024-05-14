@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     public static ThreadLocal<String> jwtToken = new ThreadLocal<>();
 
     @Override
-    protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest httpServletRequest, @NonNull HttpServletResponse httpServletResponse, @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = httpServletRequest.getHeader("Authorization");
         if(!ModuleUtils.validString(authHeader) || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(httpServletRequest, httpServletResponse);
@@ -44,7 +45,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         Authentication authentication = new UsernamePasswordAuthenticationToken(userId, null, simpleGrantedAuthorities);
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        jwtToken.set(authHeader);
+        jwtToken.set(authHeader.substring(7));
         filterChain.doFilter(httpServletRequest, httpServletResponse);
     }
 }
