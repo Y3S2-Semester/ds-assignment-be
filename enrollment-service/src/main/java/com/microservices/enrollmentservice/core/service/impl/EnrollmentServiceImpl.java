@@ -1,14 +1,20 @@
 package com.microservices.enrollmentservice.core.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.microservices.enrollmentservice.core.config.JwtAuthenticationFilter;
 import com.microservices.enrollmentservice.core.exception.EntityNotFoundException;
 import com.microservices.enrollmentservice.core.exception.ModuleException;
 import com.microservices.enrollmentservice.core.feign.CourseServiceClient;
+import com.microservices.enrollmentservice.core.feign.NotificationServiceClient;
+import com.microservices.enrollmentservice.core.feign.PaymentServiceClient;
 import com.microservices.enrollmentservice.core.feign.UserServiceClient;
 import com.microservices.enrollmentservice.core.model.Enrollment;
 import com.microservices.enrollmentservice.core.payload.CourseResponseDto;
 import com.microservices.enrollmentservice.core.payload.EnrollmentRequestDto;
 import com.microservices.enrollmentservice.core.payload.EnrollmentResponseDto;
+import com.microservices.enrollmentservice.core.payload.MailSenderDto;
+import com.microservices.enrollmentservice.core.payload.MakePaymentDto;
+import com.microservices.enrollmentservice.core.payload.TextMessageDto;
 import com.microservices.enrollmentservice.core.payload.UserResponseDto;
 import com.microservices.enrollmentservice.core.payload.common.ResponseEntityDto;
 import com.microservices.enrollmentservice.core.repository.EnrollmentRepository;
@@ -18,7 +24,10 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +40,7 @@ import java.util.stream.Collectors;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.ALREADY_UN_ENROLLED;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.COURSE_NOT_FOUND;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.ENROLLMENT_NOT_FOUND;
+import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.FAILED_PAYMENT;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.FAILED_TO_PASS_COURSE_DATA;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.USER_NOT_ENROLLED_TO_MODIFY;
 import static com.microservices.enrollmentservice.core.common.EnrollmentServiceConstants.ApplicationMessages.USER_NOT_FOUND;
@@ -57,6 +67,10 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @NonNull
     private final UserServiceClient userServiceClient;
+    @NonNull
+    private final NotificationServiceClient notificationServiceClient;
+    @NonNull
+    private final PaymentServiceClient paymentServiceClient;
 
     private String getCurrentUserId() {
         return (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -64,12 +78,49 @@ public class EnrollmentServiceImpl implements EnrollmentService {
 
     @Override
     public ResponseEntityDto addEnrollmentToCourse(EnrollmentRequestDto enrollmentRequestDto) {
+        log.info("addEnrollmentToCourse: Execution started");
         String currentUserId = getCurrentUserId();
         CourseResponseDto course = getCourse(courseServiceClient.getCourseById(enrollmentRequestDto.getCourseId()));
         UserResponseDto user = (UserResponseDto) SecurityContextHolder.getContext().getAuthentication().getCredentials();
-        Enrollment savedEnrollment = enrollmentRepository.save(enrollmentTransformer.reverseTransform(enrollmentRequestDto, currentUserId));
-        EnrollmentResponseDto enrollmentResponseDto = enrollmentTransformer.transformEnrollmentDto(savedEnrollment, course, user);
-        return new ResponseEntityDto(false, enrollmentResponseDto);
+
+        ResponseEntity<Object> paymentResponse = paymentServiceClient.makePayment(enrollmentRequestDto.getPaymentInfo());
+        if (paymentResponse != null && paymentResponse.getBody() != null && paymentResponse.getStatusCode().is2xxSuccessful()) {
+            Enrollment savedEnrollment = enrollmentRepository.save(enrollmentTransformer.reverseTransform(enrollmentRequestDto, currentUserId));
+
+
+            notificationServiceClient.webClient().post()
+                    .uri("v1/notification/mail-sender/")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .header(HttpHeaders.AUTHORIZATION, JwtAuthenticationFilter.jwtToken.get())
+                    .bodyValue(new MailSenderDto())
+                    .retrieve()
+                    .bodyToMono(Object.class)
+                    .subscribe(
+                            notification -> log.info("addEnrollmentToCourse: mail sent"),
+                            error -> log.error("Error occurred: " + error.getMessage()),
+                            () -> log.info("addEnrollmentToCourse Mail sending completed")
+                    );
+
+            notificationServiceClient.webClient().post()
+                    .uri("v1/notification/text-sender/")
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                    .header(HttpHeaders.AUTHORIZATION, JwtAuthenticationFilter.jwtToken.get())
+                    .bodyValue(new TextMessageDto())
+                    .retrieve()
+                    .bodyToMono(Object.class)
+                    .subscribe(
+                            notification -> log.info("addEnrollmentToCourse: sms sent"),
+                            error -> log.error("Error occurred: " + error.getMessage()),
+                            () -> log.info("addEnrollmentToCourse SMS sending completed")
+                    );
+
+            EnrollmentResponseDto enrollmentResponseDto = enrollmentTransformer.transformEnrollmentDto(savedEnrollment, course, user);
+            log.info("addEnrollmentToCourse: Execution completed");
+            return new ResponseEntityDto(false, enrollmentResponseDto);
+        } else {
+            log.error("addEnrollmentToCourse: Error occurred: make payment dto is missing");
+            throw new ModuleException(messageSource.getMessage(FAILED_PAYMENT, null, Locale.ENGLISH));
+        }
     }
 
     @Override
