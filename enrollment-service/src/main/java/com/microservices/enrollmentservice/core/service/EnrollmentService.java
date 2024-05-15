@@ -12,4 +12,6 @@ public interface EnrollmentService {
     ResponseEntityDto getEnrollmentSummary(String enrollmentId);
 
     ResponseEntityDto getEnrolledCourseIdsByUserId(String userId);
+
+    ResponseEntityDto getDetailedEnrollmentsByUserId(String userId);
 }

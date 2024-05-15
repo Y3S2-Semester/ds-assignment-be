@@ -31,6 +31,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -91,6 +92,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                     .uri("v1/notification/mail-sender/")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .header(HttpHeaders.AUTHORIZATION, JwtAuthenticationFilter.jwtToken.get())
+                    .header("type", "service")
+                    .header("userId", currentUserId)
+                    .header("role", user.getRole())
                     .bodyValue(new MailSenderDto())
                     .retrieve()
                     .bodyToMono(Object.class)
@@ -104,6 +108,9 @@ public class EnrollmentServiceImpl implements EnrollmentService {
                     .uri("v1/notification/text-sender/")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     .header(HttpHeaders.AUTHORIZATION, JwtAuthenticationFilter.jwtToken.get())
+                    .header("type", "service")
+                    .header("userId", currentUserId)
+                    .header("role", user.getRole())
                     .bodyValue(new TextMessageDto())
                     .retrieve()
                     .bodyToMono(Object.class)
@@ -194,5 +201,17 @@ public class EnrollmentServiceImpl implements EnrollmentService {
     public ResponseEntityDto getEnrolledCourseIdsByUserId(String userId) {
         List<Enrollment> enrollments = enrollmentRepository.findAllByUserIdAndIsActiveTrue(userId);
         return new ResponseEntityDto(false, enrollments.stream().map(Enrollment::getCourseId).collect(Collectors.toSet()));
+    }
+
+    @Override
+    public ResponseEntityDto getDetailedEnrollmentsByUserId(String userId) {
+        List<Enrollment> enrollments = enrollmentRepository.findAllByUserIdAndIsActiveTrue(userId);
+        List<EnrollmentResponseDto> enrollmentResponseDtos = new ArrayList<>();
+        for(Enrollment enrollment : enrollments) {
+            CourseResponseDto course = getCourse(courseServiceClient.getCourseById(enrollment.getCourseId()));
+            UserResponseDto user = getUser(userServiceClient.getUserById(enrollment.getUserId()));
+            enrollmentResponseDtos.add(enrollmentTransformer.transformEnrollmentDto(enrollment, course, user));
+        }
+        return new ResponseEntityDto(false, enrollmentResponseDtos);
     }
 }
