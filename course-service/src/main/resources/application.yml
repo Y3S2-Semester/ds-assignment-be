@@ -11,6 +11,10 @@ spring:
       uri: mongodb+srv://admin:2lgiIC4opKrZ2jVR@cluster0.vzb0mdl.mongodb.net/course-service
 
 management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
   endpoint:
     health:
       probes:

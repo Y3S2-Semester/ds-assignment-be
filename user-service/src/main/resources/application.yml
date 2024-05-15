@@ -16,6 +16,10 @@ jwt:
     expirationMs: 3600000
 
 management:
+  endpoints:
+    web:
+      exposure:
+        include: health, info
   endpoint:
     health:
       probes:
