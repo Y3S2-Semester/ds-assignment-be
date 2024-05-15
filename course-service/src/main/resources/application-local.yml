@@ -1,6 +1,6 @@
 feign:
   url:
-    user: http://localhost:8000
+    user: http://localhost:8765
     course: http://localhost:8100
     course-content: http://localhost:8200
     enrollment: http://localhost:8300

@@ -41,7 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
         }
 
-        jwt = authHeader.substring(7);
+        jwt = authHeader.startsWith("Bearer Bearer ") ? authHeader.substring(14) : authHeader.substring(7);
         if (jwtService.isTokenExpired(jwt)) {
             log.error("token Expired");
             return;

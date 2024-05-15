@@ -11,6 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "user-service", url = "${feign.url.user}")
 public interface UserServiceClient {
 
-    @GetMapping("/api/v1/user")
+    @GetMapping("USER/api/v1/user")
     ResponseEntityDto getAllUserByOptionalRole(@RequestParam(value = "role", required = false) Role role);
 }
