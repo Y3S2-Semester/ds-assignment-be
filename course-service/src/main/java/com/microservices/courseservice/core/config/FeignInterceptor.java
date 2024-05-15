@@ -21,6 +21,6 @@ public class FeignInterceptor implements RequestInterceptor {
     }
 
     private String getAuthToken() {
-        return "Bearer " + JwtAuthenticationFilter.jwtToken.get();
+        return JwtAuthenticationFilter.jwtToken.get();
     }
 }
