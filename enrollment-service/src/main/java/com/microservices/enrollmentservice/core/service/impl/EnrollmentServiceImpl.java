@@ -87,7 +87,6 @@ public class EnrollmentServiceImpl implements EnrollmentService {
         if (paymentResponse != null && paymentResponse.getBody() != null && paymentResponse.getStatusCode().is2xxSuccessful()) {
             Enrollment savedEnrollment = enrollmentRepository.save(enrollmentTransformer.reverseTransform(enrollmentRequestDto, currentUserId));
 
-
             notificationServiceClient.webClient().post()
                     .uri("v1/notification/mail-sender/")
                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

@@ -7,8 +7,8 @@ import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
-public class MakePaymentDto {
+public class Customer {
     @NotNull
-    private float amount;
-    private Customer customer;
+    private String name;
+    private String address;
 }
