@@ -15,4 +15,5 @@ public class EnrollmentRequestDto {
     private LocalDate enrollmentDate = LocalDate.now();
     private CompletionStatus completionStatus = CompletionStatus.IN_PROGRESS;
     private boolean isActive = true;
+    private MakePaymentDto paymentInfo;
 }
